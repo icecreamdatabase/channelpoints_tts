@@ -11,7 +11,7 @@ credentials.json
 devicecredentials.json
 
 #config
-config.json
+src/config.json
 
 # Logs
 logs

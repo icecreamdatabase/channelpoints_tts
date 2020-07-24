@@ -10,7 +10,7 @@
     "sourceMap": true,                        /* Generates corresponding '.map' file. */
     "rootDir": "src",
     "outDir": "dist",                         /* Redirect output structure to the directory. */
-    "types": ["node"],
+    "types": ["node", "mysql2"],
 
     /* Strict Type-Checking Options */
     "strict": true,                           /* Enable all strict type-checking options. */
