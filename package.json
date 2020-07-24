@@ -1,9 +1,9 @@
 {
-  "name": "ChannelPoints_TTS",
+  "name": "channelpoints_tts",
   "version": "1.0.0",
   "private": true,
   "description": "twitch bot",
-  "main": "index.js",
+  "main": "app.js",
   "keywords": [
     "twitchbot",
     "twitch",
@@ -13,6 +13,7 @@
     "twitch bot"
   ],
   "scripts": {
+    "start": "tsc && node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -27,8 +28,11 @@
     "ws": "^7.3.1"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^3.7.0",
+    "@typescript-eslint/parser": "^3.7.0",
     "eslint": "^7.4.0",
     "eslint-plugin-html": "^6.0.2",
-    "eslint-plugin-standard": "^4.0.1"
+    "eslint-plugin-standard": "^4.0.1",
+    "typescript": "^3.9.7"
   }
 }

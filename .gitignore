@@ -86,3 +86,6 @@ typings/
 
 # Serverless directories
 .serverless
+
+# Typescript output dir
+dist/
