@@ -6,8 +6,7 @@ import {Bot} from "../Bot";
 import {SqlBotData} from "../sql/main/SqlBotData"
 import {Logger} from "../helper/Logger";
 
-//ENUMS
-const TimeConversion = require('../../ENUMS/TimeConversion')
+import {TimeConversion} from "../Enums";
 
 export class Authentication {
   private readonly _validateRefreshOffset = 120000 // 2 minutes
