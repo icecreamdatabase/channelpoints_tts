@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "twitch bot",
-  "main": "app.js",
+  "main": "App.js",
   "keywords": [
     "twitchbot",
     "twitch",

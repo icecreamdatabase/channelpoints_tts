@@ -1,13 +1,11 @@
 "use strict"
 
 import console from "console"
-import sql from "./sql/Sql"
 import util from "util"
 import {DiscordLog} from "./helper/DiscordLog";
 import {Logger} from "./helper/Logger";
+import {Bot} from "./Bot"
 
 console.log("xd")
 
-sql.query("SELECT * FROM counters").then(data => {
-  console.log(util.inspect(data))
-})
+new Bot()

@@ -11,6 +11,7 @@
     "rootDir": "src",
     "outDir": "dist",                         /* Redirect output structure to the directory. */
     "types": ["node", "mysql2"],
+    "typeRoots": ["node_modules/@types"],     /* Is this needed? */
 
     /* Strict Type-Checking Options */
     "strict": true,                           /* Enable all strict type-checking options. */
