@@ -1,0 +1,43 @@
+{
+  "logDiscord": true,
+  "discord": {
+    "bot-log": {
+      "id": "xxxxxxxxxxxxxxxxxx",
+      "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "tts-status-log": {
+      "id": "xxxxxxxxxxxxxxxxxx",
+      "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "tts-message-log": {
+      "id": "xxxxxxxxxxxxxxxxxx",
+      "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "whisper-log": {
+      "id": "xxxxxxxxxxxxxxxxxx",
+      "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+  },
+  "mysqloptions": {
+    "host": "localhost",
+    "user": "root",
+    "password": "root",
+    "database": "example"
+  },
+  "botowners": [
+    "XXXXXXXX",
+    "YYYYYYYY",
+    "ZZZZZZZZ"
+  ],
+  "botadmins": [
+    "XXXXXXXX",
+    "YYYYYYYY",
+    "ZZZZZZZZ"
+  ],
+  "wsConfig": {
+    "botServerPort": 4700,
+    "TwitchIrcConnectorUrl": "localhost",
+    "TwitchIrcConnectorPort": 4701,
+    "TwitchIrcConnectorOwnApplicationId": "IceCreamDataBase"
+  }
+}

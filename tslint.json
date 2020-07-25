@@ -22,7 +22,7 @@
     "camelcase": [1],
     "comma-spacing": "error",
     "comma-style": ["error", "last"],
-    "curly": ["error", "all"],
+    "curly": [true],
     "eol-last": ["error", "always"],
     "eqeqeq": ["error", "smart"],
     "func-call-spacing": ["error", "never"],
@@ -30,7 +30,7 @@
     "keyword-spacing": "error",
     "no-with": "error",
     "no-array-constructor": "error",
-    "no-console": [0],
+    "no-console": [false],
     "no-constant-condition": ["error", { "checkLoops": false }],
     "no-extend-native": "error",
     "no-multi-spaces": ["error", { "ignoreEOLComments": true }],
@@ -39,7 +39,7 @@
     "one-var": ["error", "never"],
     "semi": ["error", "never"],
     "space-before-blocks": ["error", "always"],
-    "space-before-function-paren": ["error", "always"],
+    "space-before-function-paren": [true],
     "space-infix-ops": "error"
   }
 }
