@@ -4,7 +4,7 @@ import {Logger} from "../../helper/Logger";
 import Sql from "./../Sql"
 import {RowDataPacket, FieldPacket} from "mysql2";
 
-interface IBotData {
+export interface IBotData {
   userId?: string | number,
   userName?: string,
   clientId?: string,

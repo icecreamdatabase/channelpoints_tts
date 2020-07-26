@@ -37,7 +37,7 @@ export class Kraken {
     return this._bot
   }
 
-  async request<T> (pathAppend: string, method: Method = 'GET'): Promise<IKrakenError | T> {
+  async request<T> (pathAppend: string, method: Method = 'GET'): Promise<T/* | IKrakenError*/> {
     try {
       let result = await Axios({
         url: `https://api.twitch.tv/kraken/${pathAppend}`,
@@ -50,22 +50,23 @@ export class Kraken {
       })
       return result.data
     } catch (e) {
-      Logger.info(e)
-      return e.result.data
+      Logger.warn(e)
+      //throw new Error(e)
+      return e.response.data
     }
   }
 
   /**
    * Gets info about current live broadcast for channelID
    */
-  async streamInfo (channelID: number | string): Promise<IKrakenError | IKrakenStreams> {
+  async streamInfo (channelID: number | string): Promise<IKrakenStreams> {
     return await this.request<IKrakenStreams>(`streams/${channelID}`)
   }
 
   /**
    * Get an array with info of past 100 broadcast vods
    */
-  async getVods (channelID: number | string): Promise<IKrakenError | IKrakenChannelVideos> {
+  async getVods (channelID: number | string): Promise<IKrakenChannelVideos> {
     return await this.request<IKrakenChannelVideos>(`channels/${channelID}/videos?broadcast_type=archive&limit=100`)
   }
 
@@ -154,7 +155,7 @@ export class Kraken {
    * Return the userInfo from an array of ids
    * max 100 entries are allowed
    */
-  async userInfosFromIds (ids: number[] | string[]): Promise<IKrakenError | IKrakenUsers> {
+  async userInfosFromIds (ids: number[] | string[]): Promise<IKrakenUsers> {
     return await this.request('users?id=' + ids.join(','))
   }
 
@@ -162,7 +163,7 @@ export class Kraken {
    * Return the userInfo from an array of usernames
    * max 100 entries are allowed
    */
-  async userInfosFromLogins (usernames: string[]): Promise<IKrakenError | IKrakenUsers> {
+  async userInfosFromLogins (usernames: string[]): Promise<IKrakenUsers> {
     usernames.map((entry: string) => entry.replace(/#/, ''))
     return await this.request('users?login=' + usernames.join(','))
   }
@@ -170,28 +171,28 @@ export class Kraken {
   /**
    * Accesses kraken/users/userID/chat
    */
-  async userInfo (userId: number | string): Promise<IKrakenError | IKrakenUsersChat> {
+  async userInfo (userId: number | string): Promise<IKrakenUsersChat> {
     return await this.request('users/' + userId + '/chat')
   }
 
   /**
    * Accesses kraken/users/userID/chat/channels/roomID
    */
-  async userInChannelInfo (userId: number | string, roomId: number | string): Promise<IKrakenError | IKrakenUsersChatChannel> {
+  async userInChannelInfo (userId: number | string, roomId: number | string): Promise<IKrakenUsersChatChannel> {
     return await this.request('users/' + userId + '/chat/channels/' + roomId)
   }
 
   /**
    * Accesses kraken/channels/roomId
    */
-  async channelInfo (roomId: number | string): Promise<IKrakenError | IKrakenChannel> {
+  async channelInfo (roomId: number | string): Promise<IKrakenChannel> {
     return await this.request('channels/' + roomId)
   }
 
   /**
    * Get Channel objects for an array of roomIds
    */
-  async channelInfos (roomIds: number[] | string[]): Promise<IKrakenError | IKrakenChannels> {
+  async channelInfos (roomIds: number[] | string[]): Promise<IKrakenChannels> {
     return await this.request('channels?id=' + roomIds.join(','))
   }
 
@@ -220,7 +221,7 @@ export class Kraken {
   }
 
   async followTime (userId: number | string, roomId: number | string): Promise<{ followDate: Date | undefined, followTimeMs: number, followTimeS: number, followtimeMin: number, followtimeH: number, followtimeD: number, followtimeMon: number, followtimeY: number }> {
-    let response: IKrakenFollowsChannel = await this.request('users/' + userId + '/follows/channels/' + roomId).catch(e => Logger.log(e))
+    let response = await this.request<IKrakenFollowsChannel>('users/' + userId + '/follows/channels/' + roomId).catch(e => Logger.log(e))
     Logger.log(response)
     let returnObj = {
       followDate: new Date(0),

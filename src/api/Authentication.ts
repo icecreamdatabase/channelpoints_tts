@@ -3,7 +3,7 @@ import Axios from "axios"
 import util from "util"
 
 import {Bot} from "../Bot";
-import {SqlBotData} from "../sql/main/SqlBotData"
+import {IBotData, SqlBotData} from "../sql/main/SqlBotData"
 import {Logger} from "../helper/Logger";
 
 import {TimeConversion} from "../Enums";
@@ -14,14 +14,7 @@ export class Authentication {
   private readonly _updateInterval = 300000 // 5 minutes
 
   private readonly _bot: Bot
-  private _userId?: number | string
-  private _userName?: string
-  private _clientId?: string
-  private _clientSecret?: string
-  private _accessToken?: string
-  private _refreshToken?: string
-  private _supinicApiUser?: number | string
-  private _supinicApiKey?: string
+  private _botData: IBotData = {}
 
   constructor (bot: Bot, authReadyCb: () => void) {
     this._bot = bot
@@ -39,45 +32,59 @@ export class Authentication {
   }
 
   get userId (): number | string {
-    if (this._userId === undefined) {
+    if (this._botData.userId === undefined) {
       throw new Error("Auth: userId is undefined!")
     }
-    return this._userId
+    return this._botData.userId
   }
 
   get userName (): string {
-    if (this._userName === undefined) {
+    if (this._botData.userName === undefined) {
       throw new Error("Auth: userName is undefined!")
     }
-    return this._userName
+    return this._botData.userName
   }
 
   get clientId (): string {
-    if (this._clientId === undefined) {
+    if (this._botData.clientId === undefined) {
       throw new Error("Auth: clientId is undefined!")
     }
-    return this._clientId
+    return this._botData.clientId
+  }
+
+  private get clientSecret (): string {
+    if (this._botData.clientSecret === undefined) {
+      throw new Error("Auth: clientSecret is undefined!")
+    }
+    return this._botData.clientSecret
   }
 
   get accessToken (): string {
-    if (this._accessToken === undefined) {
+    if (this._botData.access_token === undefined) {
       throw new Error("Auth: accessToken is undefined!")
     }
-    return this._accessToken
+    return this._botData.access_token
+  }
+
+  private get refreshToken (): string {
+    if (this._botData.refresh_token === undefined) {
+      throw new Error("Auth: refreshToken is undefined!")
+    }
+    return this._botData.refresh_token
   }
 
   get supinicApiUser (): number | string {
-    if (this._supinicApiUser === undefined) {
+    if (this._botData.supinicApiUser === undefined) {
       throw new Error("Auth: supinicApiUser is undefined!")
     }
-    return this._supinicApiUser
+    return this._botData.supinicApiUser
   }
 
   get supinicApiKey (): string {
-    if (this._supinicApiKey === undefined) {
+    if (this._botData.supinicApiKey === undefined) {
       throw new Error("Auth: supinicapiKey is undefined!")
     }
-    return this._supinicApiKey
+    return this._botData.supinicApiKey
   }
 
   async validate () {
@@ -117,9 +124,9 @@ export class Authentication {
         url: 'https://id.twitch.tv/oauth2/token',
         params: {
           'client_id': this.clientId,
-          'client_secret': this._clientSecret,
+          'client_secret': this.clientSecret,
           'grant_type': 'refresh_token',
-          'refresh_token': this._refreshToken
+          'refresh_token': this.refreshToken
         }
       });
       if (Object.prototype.hasOwnProperty.call(result.data, "access_token")) {
@@ -152,21 +159,13 @@ export class Authentication {
   }
 
   async update () {
-    const botData = await SqlBotData.getBotData()
-    this._userId = botData.userId
-    this._userName = botData.userName
-    this._clientId = botData.clientId
-    this._clientSecret = botData.clientSecret
-    this._accessToken = botData.access_token
-    this._refreshToken = botData.refresh_token
-    this._supinicApiUser = botData.supinicApiUser
-    this._supinicApiKey = botData.supinicApiKey
+    this._botData = await SqlBotData.getBotData()
   }
 
   async init () {
     await this.update()
     // if this._authData is not {} --- update() will set it to {} if something failed. This should never happen!
-    if (this.accessToken !== undefined) {
+    if (this.accessToken) {
       await this.validate()
     } else {
       Logger.error(`An account has no valid auth data in the database!\n${this.userId}`)
