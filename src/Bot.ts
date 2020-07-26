@@ -4,6 +4,7 @@ import {EventEmitter} from "eventemitter3";
 
 import {Helix, Kraken, Other, Authentication} from "./api/Api";
 import {UserIdLoginCache} from "./helper/UserIdLoginCache";
+import {SqlGlobalUserBlacklist} from "./sql/main/SqlGlobalUserBlacklist";
 
 
 //CLASSES
@@ -17,7 +18,7 @@ const SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
 
 export class Bot extends EventEmitter {
   public readonly refreshEventName = 'refresh'
-  private userBlacklist: number[] | string[] = [];
+  private _globalUserBlacklist: number[] | string[] = [];
   private _userIdLoginCache?: UserIdLoginCache;
   private _helix?: Helix
   private _kraken?: Kraken
@@ -90,18 +91,18 @@ export class Bot extends EventEmitter {
     return this.authentication.userName
   }
 
-  isUserIdInBlacklist (userId: number | string): boolean {
+  public isUserIdInBlacklist (userId: number | string): boolean {
     // @ts-ignore TODO: No clue how to fix this
-    return this.userBlacklist.includes(parseInt(userId))
+    return this._globalUserBlacklist.includes(parseInt(userId))
   }
 
-  async addUserIdToBlacklist (userId: number | string) {
-    SqlBlacklist.addUserId(userId)
+  public async addUserIdToBlacklist (userId: number | string) {
+    SqlGlobalUserBlacklist.addUserId(userId)
     await this.updateUserBlacklist()
   }
 
-  async updateUserBlacklist () {
-    this.userBlacklist = await SqlBlacklist.getUserIds()
+  public async updateUserBlacklist () {
+    this._globalUserBlacklist = await SqlGlobalUserBlacklist.getUserIds()
   }
 }
 
