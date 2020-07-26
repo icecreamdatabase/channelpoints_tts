@@ -5,7 +5,16 @@ import {Bot} from "../Bot";
 import {Logger} from "../helper/Logger";
 import {TimeConversion} from "../Enums";
 
+import {
+  IKrakenUsersChat,
+  IKrakenUsersChatChannel,
+  IKrakenChannel,
+  IKrakenChannels,
+  IKrakenFollowsChannel
+} from "./IKraken"
+
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
+
 
 export class Kraken {
   private readonly _bot: Bot;
@@ -48,8 +57,6 @@ export class Kraken {
 
   /**
    * Get an array with info of past 100 broadcast vods
-   * @param channelID
-   * @returns {Promise<Object>}
    */
   async getVods (channelID: number | string): Promise<any> {
     return await this.request(`channels/${channelID}/videos?broadcast_type=archive&limit=100`)
@@ -58,13 +65,10 @@ export class Kraken {
 //TODO: cleanup of duplicated stuff
   /**
    * receive login name from a single userid
-   * @param userId userid to check
-   * @returns {Promise<string>} login name as string inside a promise
    */
   async loginFromUserId (userId: number | string): Promise<any> {
     let response = await this.userInfo(userId)
     if (Object.hasOwnProperty.call(response, 'login')) {
-      // @ts-ignore //TODO: !?
       return response.login
     } else {
       return ""
@@ -74,8 +78,6 @@ export class Kraken {
 //TODO: cleanup of duplicated stuff
   /**
    * Returns the userId from a single login
-   * @param username login to check
-   * @returns {Promise<string>} userId as string
    */
   async userIdFromLogin (username: string): Promise<number | string> {
     let response: { total: number, users: { _id: number | string }[] } = await this.userInfosFromLogins([username])
@@ -92,14 +94,11 @@ export class Kraken {
    * Returns the userInfo from an array of usernames
    * directly returns the ["users"]
    * automatically handles if more than 100 usernames are requested
-   *
-   * @param {Array<String>} ids The ids to check for
-   * @returns {Object} return from users api
    */
-  async userDataFromIds (ids) {
+  async userDataFromIds (ids: string[]): Promise<object[]> {
     let chunkSize = 100
-    let users = []
-    let requestChunks = [].concat.apply([], ids.map((elem, i) => i % chunkSize ? [] : [ids.slice(i, i + chunkSize)]))
+    let users: object[] = []
+    let requestChunks = [].concat.apply([], ids.map((elem: string, i: number) => i % chunkSize ? [] : [ids.slice(i, i + chunkSize)]))
 
     for (let chunk of requestChunks) {
       let responseChunk = await this.userInfosFromIds(chunk)
@@ -115,13 +114,10 @@ export class Kraken {
    * Returns the userInfo from an array of ids
    * directly returns the ["users"]
    * automatically handles if more than 100 usernames are requested
-   *
-   * @param {Array<String>} usernames The names to check for
-   * @returns {Object} return from users api
    */
-  async userDataFromLogins (usernames) {
+  async userDataFromLogins (usernames: string[]): Promise<object[]> {
     let chunkSize = 100
-    let users = []
+    let users: object[] = []
     let requestChunks = [].concat.apply([], usernames.map((elem, i) => i % chunkSize ? [] : [usernames.slice(i, i + chunkSize)]))
 
     for (let chunk of requestChunks) {
@@ -136,27 +132,22 @@ export class Kraken {
   /**
    * Return the userInfo from an array of ids
    * max 100 entries are allowed
-   *
-   * @param  {Array<String>} ids The ids to check for
-   * @return {Object} return from users api
    */
-  async userInfosFromIds (ids) {
+  async userInfosFromIds (ids: string[]): Promise<object> {
     return await this.request('users?id=' + ids.join(','))
   }
 
   /**
    * Return the userInfo from an array of usernames
    * max 100 entries are allowed
-   *
-   * @param  {Array<String>} usernames The names to check for
-   * @return {Object} return from users api
    */
-  async userInfosFromLogins (usernames) {
+  async userInfosFromLogins (usernames: string[]): Promise<object> {
     usernames.map((entry) => {
       return entry.replace(/#/, '')
     })
     return await this.request('users?login=' + usernames.join(','))
   }
+
 
   /**
    * Users object returned by
@@ -194,112 +185,30 @@ export class Kraken {
   }
 
   /**
-   * Accesses the kraken/users/:userID/chat/channels/:roomID
-   * Example: https://api.twitch.tv/kraken/users/38949074/chat/channels/38949074?api_version=5
-   * Example return:
-   * {
-   *   "id":"38949074",
-   *   "login":"icdb",
-   *   "displayName":"icdb",
-   *   "color":"#00FF00",
-   *   "isVerifiedBot":false,
-   *   "isKnownBot":false,
-   *   "badges":[
-   *     {
-   *       "id":"moderator",
-   *       "version":"1"
-   *     }
-   *   ]
-   * }
-   * @param  {String|int} userId The userID to check for
-   * @param  {String|int} roomId The roomID to check in
-   * @return {Users} [description]
+   * Accesses kraken/users/userID/chat/channels/roomID
    */
-  async userInChannelInfo (userId, roomId) {
+  async userInChannelInfo (userId: number | string, roomId: number | string): Promise<IKrakenUsersChatChannel> {
     return await this.request('users/' + userId + '/chat/channels/' + roomId)
   }
 
   /**
-   * Channel object returned by
-   * kraken/channels/XXXXXX
-   *
-   * @typedef {Object} Channel
-   * @property {boolean} mature
-   * @property {string} status
-   * @property {string} broadcaster_language
-   * @property {string} broadcaster_software
-   * @property {string} display_name
-   * @property {string} game
-   * @property {string} language
-   * @property {string} _id
-   * @property {string} name
-   * @property {string} created_at
-   * @property {string} updated_at
-   * @property {boolean} partner
-   * @property {string} logo
-   * @property {string} video_banner
-   * @property {string} profile_banner
-   * @property {string} profile_banner_background_color
-   * @property {string} url
-   * @property {number} views
-   * @property {number} followers
-   * @property {string} broadcaster_type
-   * @property {string} description
-   * @property {boolean} private_video
-   * @property {boolean} privacy_options_enabled
+   * Accesses kraken/channels/roomId
    */
-
-  /**
-   * Accesses the kraken/channels/:roomID
-   * Example: https://api.twitch.tv/kraken/channels/38949074?api_version=5
-   * Example return:
-   * {
-   *   "mature":true,
-   *   "status":"—o—",
-   *   "broadcaster_language":"en",
-   *   "broadcaster_software":"unknown_rtmp",
-   *   "display_name":"icdb",
-   *   "game":"Travel \u0026 Outdoors",
-   *   "language":"en",
-   *   "_id":"38949074",
-   *   "name":"icdb",
-   *   "created_at":"2013-01-01T18:40:40Z",
-   *   "updated_at":"2020-02-28T17:11:55Z",
-   *   "partner":false,
-   *   "logo":"https://-cdn.jtvnw.net/jtv_user_pictures/c328da4c-dfc8-490e-a02a-63473b023a2d-profile_image-300x300.png",
-   *   "video_banner":null,
-   *   "profile_banner":"https://-cdn.jtvnw.net/jtv_user_pictures/4788ff0a-cae9-48cb-9028-effe6996f9b3-profile_banner-480.png",
-   *   "profile_banner_background_color":null,
-   *   "url":"https://www.twitch.tv/icdb",
-   *   "views":5149,
-   *   "followers":398,
-   *   "broadcaster_type":"affiliate",
-   *   "description":"The Ice Cream Database (abbreviated icdb) is an online database of information related to ice cream, cones, and scoops, including flavour and nutritional information. OpieOP",
-   *   "private_video":false,
-   *   "privacy_options_enabled":false
-   * }
-   * @param  {String|int} roomId The roomID to check
-   * @return {Users} [description]
-   */
-  async channelInfo (roomId) {
+  async channelInfo (roomId: number | string): Promise<IKrakenChannel> {
     return await this.request('channels/' + roomId)
   }
 
   /**
    * Get Channel objects for an array of roomIds
-   * @param {[number]} roomIds
-   * @returns {Promise<Object>}
    */
-  async channelInfos (roomIds) {
+  async channelInfos (roomIds: number[] | string[]): Promise<IKrakenChannels> {
     return await this.request('channels?id=' + roomIds.join(','))
   }
 
   /**
    * Get Channel objects for an array of roomIds
-   * @param {[number|string]} roomIds
-   * @returns {Promise<[Channel]>} channelObjects
    */
-  async channelInfosFromIds (roomIds) {
+  async channelInfosFromIds (roomIds: number[] | string[]): Promise<IKrakenChannel[]> {
     let chunkSize = 100
     let users = []
     let requestChunks = [].concat.apply([], roomIds.map((elem, i) => i % chunkSize ? [] : [roomIds.slice(i, i + chunkSize)]))
@@ -313,18 +222,11 @@ export class Kraken {
     return users
   }
 
-  /**
-   * TODO: WIP
-   * Get followtime of a user in channel
-   * @param userId
-   * @param roomId
-   * @returns {Promise<{followDate: Date, followTimeMs: number, followTimeS: number, followtimeMin: number, followtimeH: number, followtimeD: number, followtimeMon: number, followtimeY: number}>}
-   */
-  async followTime (userId, roomId) {
-    let response = await this.request('users/' + userId + '/follows/channels/' + roomId).catch(e => Logger.log(e))
+  async followTime (userId: number | string, roomId: number | string): Promise<{ followDate: Date | undefined, followTimeMs: number, followTimeS: number, followtimeMin: number, followtimeH: number, followtimeD: number, followtimeMon: number, followtimeY: number }> {
+    let response: IKrakenFollowsChannel = await this.request('users/' + userId + '/follows/channels/' + roomId).catch(e => Logger.log(e))
     Logger.log(response)
     let returnObj = {
-      followDate: undefined,
+      followDate: new Date(0),
       followTimeMs: -1,
       followTimeS: -1,
       followtimeMin: -1,
@@ -335,30 +237,27 @@ export class Kraken {
     }
     if (response && Object.prototype.hasOwnProperty.call(response, "created_at")) {
       returnObj.followDate = new Date(response.created_at)
-      returnObj.followTimeMs = Date.now() - returnObj.followDate
+      returnObj.followTimeMs = Date.now() - returnObj.followDate.getTime()
       returnObj.followTimeS = Math.floor(returnObj.followTimeMs / 1000)
-      returnObj.followtimeMin = Math.floor(returnObj.followTimeS / TimeConversion.MINUTETOSECONDS)
-      returnObj.followtimeH = Math.floor(returnObj.followTimeS / TimeConversion.HOURTOSECONDS)
-      returnObj.followtimeD = Math.floor(returnObj.followTimeS / TimeConversion.DAYTOSECONDS)
-      returnObj.followtimeMon = Math.floor(returnObj.followTimeS / TimeConversion.MONTHTOSECONDS)
-      returnObj.followtimeY = Math.floor(returnObj.followTimeS / TimeConversion.YEARTOSECONDS)
+      returnObj.followtimeMin = Math.floor(returnObj.followTimeS / TimeConversion.MinuteToSeconds)
+      returnObj.followtimeH = Math.floor(returnObj.followTimeS / TimeConversion.HourToSeconds)
+      returnObj.followtimeD = Math.floor(returnObj.followTimeS / TimeConversion.DayToSeconds)
+      returnObj.followtimeMon = Math.floor(returnObj.followTimeS / TimeConversion.MonthToSeconds)
+      returnObj.followtimeY = Math.floor(returnObj.followTimeS / TimeConversion.YearToSeconds)
     }
     return returnObj
   }
 
   /**
    * Returns the userstate of a userId inside a room from the api
-   * @param  {String|int} userId The userID to check for
-   * @param  {String|int} roomId The roomID to check in
-   * @return {isBroadcaster, isMod, isVip, isAny}        Object of the status
    */
-  async userStatus (userId, roomId) {
+  async userStatus (userId: number | string, roomId: number | string): Promise<{ isBroadcaster: boolean, isMod: boolean, isVip: boolean, isAny: boolean, isSubscriber: boolean, isKnownBot: boolean, isVerifiedBot: boolean }> {
     let userData = await this.userInChannelInfo(userId, roomId)
     let isBroadcaster = false
     let isMod = false
     let isVip = false
     let isSubscriber = false
-    for (let badge of userData.badges) {
+    for (let badge of userData.Badges) {
       if (badge.id === "broadcaster") {
         isBroadcaster = true
       }
@@ -373,8 +272,8 @@ export class Kraken {
       }
     }
     let isAny = isBroadcaster || isMod || isVip
-    let isKnownBot = userData["is_known_bot"] || false
-    let isVerifiedBot = userData["is_verified_bot"] || false
+    let isKnownBot = userData.is_known_bot || false
+    let isVerifiedBot = userData.is_verified_bot || false
 
     return {isBroadcaster, isMod, isVip, isAny, isSubscriber, isKnownBot, isVerifiedBot}
   }
