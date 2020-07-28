@@ -11,14 +11,14 @@ export class Channels {
 
   constructor (bot: Bot) {
     this._bot = bot;
-    this.updateAll().then()
+    this.updateFromDb().then()
   }
 
   public get bot (): Bot {
     return this._bot;
   }
 
-  public async updateAll () {
+  public async updateFromDb () {
     const channelArr = await SqlChannels.getChannels()
     for (const channel of channelArr) {
       this.addOrUpdateChannel(Channel.FromISqlChannel(this.bot, channel))
@@ -37,10 +37,8 @@ export class Channels {
     return this._sqlChannels.values()
   }
 
-  private addChannel (channel: Channel): void {
-    this._sqlChannels.set(channel.roomId, channel)
-
-    //TODO: trigger irc join
+  getAllRoomIds (): number[] {
+    return Array.from(this._sqlChannels.keys())
   }
 
   public addOrUpdateChannel (newChannel: Channel): void {
@@ -59,14 +57,16 @@ export class Channels {
     }
   }
 
+  private addChannel (channel: Channel): void {
+    this._sqlChannels.set(channel.roomId, channel)
+
+    //TODO: trigger irc join
+  }
+
   deleteChannel (sqlChannel: Channel): void {
     this._sqlChannels.delete(sqlChannel.roomId)
 
     //TODO: trigger irc leave
-  }
-
-  getAllRoomIds (): number[] {
-    return Array.from(this._sqlChannels.keys())
   }
 }
 

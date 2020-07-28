@@ -106,7 +106,7 @@ export class UserIdLoginCache {
     UserIdLoginCache.userIdByName.clear()
     await this.prefetchListOfIds(currentIds)
     //await this.checkNameChanges() // this is included in updateBotChannels currently
-    await this.bot.channels.updateAll()
+    await this.bot.channels.updateFromDb()
     Logger.debug(`Refreshed UserIdLoginCache. ${this.bot.userId} (${this.bot.userName}) is currently tracking ${Object.keys(UserIdLoginCache.userNameById).length} ids.`)
   }
 }
