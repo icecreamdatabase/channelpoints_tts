@@ -18,7 +18,7 @@ const SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
 
 export class Bot extends EventEmitter {
   public readonly refreshEventName = 'refresh'
-  private _globalUserBlacklist: number[] | string[] = [];
+  private _globalUserBlacklist: number[] = [];
   private _userIdLoginCache?: UserIdLoginCache;
   private _helix?: Helix
   private _kraken?: Kraken
@@ -92,8 +92,7 @@ export class Bot extends EventEmitter {
   }
 
   public isUserIdInBlacklist (userId: number | string): boolean {
-    // @ts-ignore TODO: No clue how to fix this
-    return this._globalUserBlacklist.includes(parseInt(userId))
+    return this._globalUserBlacklist.includes(typeof userId === "number" ? userId : parseInt(userId))
   }
 
   public async addUserIdToBlacklist (userId: number | string) {
