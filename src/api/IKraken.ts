@@ -14,7 +14,7 @@ export interface IKrakenUser {
   type: string,
   bio: string,
   created_at: string,
-  uddated_at: string,
+  updated_at: string,
   logo: string
 }
 

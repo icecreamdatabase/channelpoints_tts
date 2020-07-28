@@ -1,27 +1,25 @@
 "use strict"
 
-import {EventEmitter} from "eventemitter3";
+import {EventEmitter} from "eventemitter3"
 
-import {Helix, Kraken, Other, Authentication} from "./api/Api";
-import {UserIdLoginCache} from "./helper/UserIdLoginCache";
-import {SqlGlobalUserBlacklist} from "./sql/main/SqlGlobalUserBlacklist";
+import {Helix, Kraken, Other, Authentication} from "./api/Api"
+import {UserIdLoginCache} from "./helper/UserIdLoginCache"
+import {SqlGlobalUserBlacklist} from "./sql/main/SqlGlobalUserBlacklist"
 
+import {Channels} from "./channel/Channels"
+import {Irc} from "./irc/Irc"
+import {PubSub} from "./pubsub/PubSub"
 
-//CLASSES
-//const SqlBlacklist = require('./sql/main/SqlUserBlacklist')
-//const UserIdLoginCache = require('./helper/UserIdLoginCache')
-//const Irc = require('./irc/Irc')
-//const PubSub = require('./pubsub/PubSub')
-
-const UPDATE_USERBLACKLIST_INTERVAL = 120000 // 2 minutes
+const UPDATE_GLOBAL_USER_BLACKLIST_INTERVAL = 120000 // 2 minutes
 const SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
 
 export class Bot extends EventEmitter {
   public readonly refreshEventName = 'refresh'
-  private _globalUserBlacklist: number[] = [];
+  private readonly _globalUserBlacklist: Set<number> = new Set<number>();
   private _userIdLoginCache?: UserIdLoginCache;
   private _helix?: Helix
   private _kraken?: Kraken
+  private _channels: Channels = new Channels(this)
   private _irc?: Irc;
   private _pubSub?: PubSub;
   public authentication: Authentication;
@@ -29,11 +27,11 @@ export class Bot extends EventEmitter {
   constructor () {
     super()
 
-    setInterval(this.updateUserBlacklist.bind(this), UPDATE_USERBLACKLIST_INTERVAL)
+    setInterval(this.updateGlobalUserBlacklist.bind(this), UPDATE_GLOBAL_USER_BLACKLIST_INTERVAL)
     // noinspection JSIgnoredPromiseFromCall
-    this.updateUserBlacklist()
+    this.updateGlobalUserBlacklist()
 
-    this.on(this.refreshEventName, this.updateUserBlacklist.bind(this))
+    this.on(this.refreshEventName, this.updateGlobalUserBlacklist.bind(this))
     this.authentication = new Authentication(this, () => this.onAuthReady())
   }
 
@@ -56,6 +54,10 @@ export class Bot extends EventEmitter {
       throw new Error("Bot: kraken is undefined!")
     }
     return this._kraken
+  }
+
+  get channels (): Channels {
+    return this._channels
   }
 
   get irc () {
@@ -92,16 +94,16 @@ export class Bot extends EventEmitter {
   }
 
   public isUserIdInBlacklist (userId: number | string): boolean {
-    return this._globalUserBlacklist.includes(typeof userId === "number" ? userId : parseInt(userId))
+    return this._globalUserBlacklist.has(typeof userId === "number" ? userId : parseInt(userId))
   }
 
   public async addUserIdToBlacklist (userId: number | string) {
     SqlGlobalUserBlacklist.addUserId(userId)
-    await this.updateUserBlacklist()
+    await this.updateGlobalUserBlacklist()
   }
 
-  public async updateUserBlacklist () {
-    this._globalUserBlacklist = await SqlGlobalUserBlacklist.getUserIds()
+  public async updateGlobalUserBlacklist () {
+    (await SqlGlobalUserBlacklist.getUserIds()).forEach(item => this._globalUserBlacklist.add(item))
   }
 }
 

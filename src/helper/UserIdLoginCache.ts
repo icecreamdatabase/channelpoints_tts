@@ -1,6 +1,9 @@
 "use strict"
 import {Bot} from "../Bot";
 import {Logger} from "./Logger";
+import {IdHelper} from "./IdHelper";
+import {Channels} from "../channel/Channels";
+import {SqlChannels} from "../sql/channel/SqlChannels";
 
 //const SqlChannels = require('./../sql/main/SqlChannels')
 
@@ -9,8 +12,8 @@ const CLEANUPINTERVAL = 10800000 //3 hours
 
 export class UserIdLoginCache {
   private readonly _bot: Bot
-  private userInfosById: Record<number | string, string> = {}
-  private userInfosByName: Record<string, number | string> = {}
+  private static userNameById: Map<number, string> = new Map<number, string>()
+  private static userIdByName: Map<string, number> = new Map<string, number>()
 
   constructor (bot: Bot) {
     this._bot = bot
@@ -28,27 +31,26 @@ export class UserIdLoginCache {
   }
 
   async prefetchFromDatabase (): Promise<void> {
-    let channels = await SqlChannels.getChannelData(this.bot.userId)
-    for (let currentId in channels) {
-      if (Object.prototype.hasOwnProperty.call(channels, currentId)) {
-        let channel = channels[currentId]
-        this.userInfosById[channel.channelID] = channel.channelName
-        this.userInfosByName[channel.channelName.toLowerCase()] = channel.channelID
-      }
+    const channels = await SqlChannels.getChannels()
+    for (const channel of channels) {
+      UserIdLoginCache.userNameById.set(IdHelper.IdToNumber(channel.roomId), channel.channelName)
+      UserIdLoginCache.userIdByName.set(channel.channelName.toLowerCase(), IdHelper.IdToNumber(channel.roomId))
     }
   }
 
   async checkNameChanges (): Promise<void> {
-    let channelIdsFromDb = Object.keys(await SqlChannels.getChannelData(this.bot.userId))
-    let users = await this.bot.kraken.userDataFromIds(channelIdsFromDb)
+    let users = await this.bot.kraken.userDataFromIds(this.bot.channels.getAllRoomIds())
     for (let user of users) {
-      if (this.userInfosById[user._id] !== undefined
-        && this.userInfosById[user._id] !== user.name) {
+      if (UserIdLoginCache.userNameById.has(IdHelper.IdToNumber(user._id))
+        && UserIdLoginCache.userNameById.get(IdHelper.IdToNumber(user._id)) !== user.name) {
         // Person must have changed their name
         Logger.debug(`############################################################`)
-        Logger.debug(`${user._id} changed their name: ${this.userInfosById[user._id]} --> ${user.name}`)
+        Logger.debug(`${user._id} changed their name: ${UserIdLoginCache.userNameById.get(IdHelper.IdToNumber(user._id))} --> ${user.name}`)
         Logger.debug(`############################################################`)
-        await SqlChannels.updateUserNameIfExists(user._id, user.name)
+        const channel = await this.bot.channels.getChannel(IdHelper.IdToNumber(user._id))
+        if (channel) {
+          channel.channelName = user.name
+        }
       }
     }
     await this.prefetchFromDatabase()
@@ -57,25 +59,25 @@ export class UserIdLoginCache {
   async prefetchListOfIds (ids: string[] | number[]): Promise<void> {
     let users = await this.bot.kraken.userDataFromIds(ids)
     for (let user of users) {
-      this.userInfosById[user["_id"]] = user.name
-      this.userInfosByName[user["name"].toLowerCase()] = user["_id"]
+      UserIdLoginCache.userNameById.set(IdHelper.IdToNumber(user._id), user.name)
+      UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), IdHelper.IdToNumber(user._id))
     }
   }
 
   async idToName (id: string | number): Promise<undefined | string> {
-    if (!Object.prototype.hasOwnProperty.call(this.userInfosById, id)) {
-      let users = await this.bot.kraken.userDataFromIds([id])
+    if (!UserIdLoginCache.userNameById.has(IdHelper.IdToNumber(id))) {
+      let users = await this.bot.kraken.userDataFromIds([IdHelper.IdToNumber(id)])
       if (users.length > 0) {
         let user = users[0]
-        this.userInfosById[user._id] = user.name
-        this.userInfosByName[user.name.toLowerCase()] = user._id
+        UserIdLoginCache.userNameById.set(IdHelper.IdToNumber(user._id), user.name)
+        UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), IdHelper.IdToNumber(user._id))
       } else {
         Logger.debug(`idToName failed with id: ${id}\nChannel is probably banned.`)
         return undefined
       }
     }
 
-    return this.userInfosById[id]
+    return UserIdLoginCache.userNameById.get(IdHelper.IdToNumber(id))
   }
 
   async nameToId (name: string): Promise<undefined | number | string> {
@@ -84,29 +86,29 @@ export class UserIdLoginCache {
     if (name.charAt(0) === "#") {
       name = name.substr(1)
     }
-    if (!Object.prototype.hasOwnProperty.call(this.userInfosByName, name)) {
+    if (!UserIdLoginCache.userIdByName.has(name)) {
       let users = await this.bot.kraken.userDataFromLogins([name])
       if (users.length > 0) {
         let user = users[0]
-        this.userInfosById[user._id] = user.name
-        this.userInfosByName[user.name.toLowerCase()] = user._id
+        UserIdLoginCache.userNameById.set(IdHelper.IdToNumber(user._id), user.name)
+        UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), IdHelper.IdToNumber(user._id))
       } else {
         Logger.debug(`nameToId failed with name: ${name}\nChannel is probably banned.`)
         return undefined
       }
     }
 
-    return this.userInfosByName[name]
+    return UserIdLoginCache.userIdByName.get(name)
   }
 
   async updateMaps () {
-    let currentIds = Object.keys(this.userInfosById)
-    this.userInfosById = {}
-    this.userInfosByName = {}
+    let currentIds = Array.from(UserIdLoginCache.userNameById.keys())
+    UserIdLoginCache.userNameById.clear()
+    UserIdLoginCache.userIdByName.clear()
     await this.prefetchListOfIds(currentIds)
     //await this.checkNameChanges() // this is included in updateBotChannels currently
-    await this.bot.irc.updateBotChannels()
-    Logger.debug(`Refreshed UserIdLoginCache. ${this.bot.userId} (${this.bot.userName}) is currently tracking ${Object.keys(this.userInfosById).length} ids.`)
+    await this.bot.channels.updateAll()
+    Logger.debug(`Refreshed UserIdLoginCache. ${this.bot.userId} (${this.bot.userName}) is currently tracking ${Object.keys(UserIdLoginCache.userNameById).length} ids.`)
   }
 }
 
