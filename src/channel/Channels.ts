@@ -2,7 +2,6 @@
 import util from "util"
 import {Logger} from "../helper/Logger";
 import {Channel} from "./Channel";
-import {IdHelper} from "../helper/IdHelper";
 import {SqlChannels} from "../sql/channel/SqlChannels";
 import {Bot} from "../Bot";
 
@@ -26,12 +25,12 @@ export class Channels {
     }
   }
 
-  public hasChannel (roomId: number | string): boolean {
-    return this._sqlChannels.has(IdHelper.IdToNumber(roomId))
+  public hasChannel (roomId: number): boolean {
+    return this._sqlChannels.has(roomId)
   }
 
-  public getChannel (roomId: number | string): Channel | undefined {
-    return this._sqlChannels.get(IdHelper.IdToNumber(roomId))
+  public getChannel (roomId: number): Channel | undefined {
+    return this._sqlChannels.get(roomId)
   }
 
   public getAllChannels (): IterableIterator<Channel> {
@@ -39,14 +38,14 @@ export class Channels {
   }
 
   private addChannel (channel: Channel): void {
-    this._sqlChannels.set(IdHelper.IdToNumber(channel.roomId), channel)
+    this._sqlChannels.set(channel.roomId, channel)
 
     //TODO: trigger irc join
   }
 
   public addOrUpdateChannel (newChannel: Channel): void {
-    if (this._sqlChannels.has(IdHelper.IdToNumber(newChannel.roomId))) {
-      const channel = this.getChannel(IdHelper.IdToNumber(newChannel.roomId))
+    if (this._sqlChannels.has(newChannel.roomId)) {
+      const channel = this.getChannel(newChannel.roomId)
       if (channel) {
         channel.channelName = newChannel.channelName
         channel.isTwitchPartner = newChannel.isTwitchPartner
@@ -61,7 +60,7 @@ export class Channels {
   }
 
   deleteChannel (sqlChannel: Channel): void {
-    this._sqlChannels.delete(IdHelper.IdToNumber(sqlChannel.roomId))
+    this._sqlChannels.delete(sqlChannel.roomId)
 
     //TODO: trigger irc leave
   }

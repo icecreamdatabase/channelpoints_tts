@@ -161,10 +161,7 @@ export class DiscordLog {
    */
   private static getDecimalFromHexString (hex: string): number {
     hex = hex.toString().replace("#", "")
-    if (!hex.startsWith("0x")) {
-      hex = "0x" + hex
-    }
-    return parseInt(hex)
+    return parseInt(hex, 16)
   }
 
 

@@ -28,7 +28,7 @@ export class SqlChannels {
     //return sqlChannels
   }
 
-  static async addOrUpdateChannel (roomId: number | string, channelName: string, isTwitchPartner: boolean, maxMessageLength: number, minCooldown: number): Promise<void> {
+  static async addOrUpdateChannel (roomId: number, channelName: string, isTwitchPartner: boolean, maxMessageLength: number, minCooldown: number): Promise<void> {
     await Sql.query(`INSERT INTO channels (roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown)
                      VALUES (?, ?, ?, ?, ?)
                      ON DUPLICATE KEY UPDATE channelName      = channelName,

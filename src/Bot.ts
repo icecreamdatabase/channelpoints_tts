@@ -93,8 +93,8 @@ export class Bot extends EventEmitter {
     return this.authentication.userName
   }
 
-  public isUserIdInBlacklist (userId: number | string): boolean {
-    return this._globalUserBlacklist.has(typeof userId === "number" ? userId : parseInt(userId))
+  public isUserIdInBlacklist (userId: number): boolean {
+    return this._globalUserBlacklist.has(userId)
   }
 
   public async addUserIdToBlacklist (userId: number | string) {

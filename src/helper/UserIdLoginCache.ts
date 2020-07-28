@@ -1,7 +1,6 @@
 "use strict"
 import {Bot} from "../Bot";
 import {Logger} from "./Logger";
-import {IdHelper} from "./IdHelper";
 import {Channels} from "../channel/Channels";
 import {SqlChannels} from "../sql/channel/SqlChannels";
 
@@ -33,21 +32,21 @@ export class UserIdLoginCache {
   async prefetchFromDatabase (): Promise<void> {
     const channels = await SqlChannels.getChannels()
     for (const channel of channels) {
-      UserIdLoginCache.userNameById.set(IdHelper.IdToNumber(channel.roomId), channel.channelName)
-      UserIdLoginCache.userIdByName.set(channel.channelName.toLowerCase(), IdHelper.IdToNumber(channel.roomId))
+      UserIdLoginCache.userNameById.set(channel.roomId, channel.channelName)
+      UserIdLoginCache.userIdByName.set(channel.channelName.toLowerCase(), channel.roomId)
     }
   }
 
   async checkNameChanges (): Promise<void> {
     let users = await this.bot.kraken.userDataFromIds(this.bot.channels.getAllRoomIds())
     for (let user of users) {
-      if (UserIdLoginCache.userNameById.has(IdHelper.IdToNumber(user._id))
-        && UserIdLoginCache.userNameById.get(IdHelper.IdToNumber(user._id)) !== user.name) {
+      if (UserIdLoginCache.userNameById.has(parseInt(user._id, 10))
+        && UserIdLoginCache.userNameById.get(parseInt(user._id, 10)) !== user.name) {
         // Person must have changed their name
         Logger.debug(`############################################################`)
-        Logger.debug(`${user._id} changed their name: ${UserIdLoginCache.userNameById.get(IdHelper.IdToNumber(user._id))} --> ${user.name}`)
+        Logger.debug(`${user._id} changed their name: ${UserIdLoginCache.userNameById.get(parseInt(user._id, 10))} --> ${user.name}`)
         Logger.debug(`############################################################`)
-        const channel = await this.bot.channels.getChannel(IdHelper.IdToNumber(user._id))
+        const channel = await this.bot.channels.getChannel(parseInt(user._id, 10))
         if (channel) {
           channel.channelName = user.name
         }
@@ -59,28 +58,28 @@ export class UserIdLoginCache {
   async prefetchListOfIds (ids: string[] | number[]): Promise<void> {
     let users = await this.bot.kraken.userDataFromIds(ids)
     for (let user of users) {
-      UserIdLoginCache.userNameById.set(IdHelper.IdToNumber(user._id), user.name)
-      UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), IdHelper.IdToNumber(user._id))
+      UserIdLoginCache.userNameById.set(parseInt(user._id, 10), user.name)
+      UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), parseInt(user._id, 10))
     }
   }
 
-  async idToName (id: string | number): Promise<undefined | string> {
-    if (!UserIdLoginCache.userNameById.has(IdHelper.IdToNumber(id))) {
-      let users = await this.bot.kraken.userDataFromIds([IdHelper.IdToNumber(id)])
+  async idToName (id: number): Promise<undefined | string> {
+    if (!UserIdLoginCache.userNameById.has(id)) {
+      let users = await this.bot.kraken.userDataFromIds([id])
       if (users.length > 0) {
         let user = users[0]
-        UserIdLoginCache.userNameById.set(IdHelper.IdToNumber(user._id), user.name)
-        UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), IdHelper.IdToNumber(user._id))
+        UserIdLoginCache.userNameById.set(parseInt(user._id, 10), user.name)
+        UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), parseInt(user._id, 10))
       } else {
         Logger.debug(`idToName failed with id: ${id}\nChannel is probably banned.`)
         return undefined
       }
     }
 
-    return UserIdLoginCache.userNameById.get(IdHelper.IdToNumber(id))
+    return UserIdLoginCache.userNameById.get(id)
   }
 
-  async nameToId (name: string): Promise<undefined | number | string> {
+  async nameToId (name: string): Promise<undefined | number> {
     name = name.toLowerCase().trim()
     //Get rid of channelnamne #
     if (name.charAt(0) === "#") {
@@ -90,8 +89,8 @@ export class UserIdLoginCache {
       let users = await this.bot.kraken.userDataFromLogins([name])
       if (users.length > 0) {
         let user = users[0]
-        UserIdLoginCache.userNameById.set(IdHelper.IdToNumber(user._id), user.name)
-        UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), IdHelper.IdToNumber(user._id))
+        UserIdLoginCache.userNameById.set(parseInt(user._id, 10), user.name)
+        UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), parseInt(user._id, 10))
       } else {
         Logger.debug(`nameToId failed with name: ${name}\nChannel is probably banned.`)
         return undefined

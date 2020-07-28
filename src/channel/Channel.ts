@@ -5,7 +5,7 @@ import {Bot} from "../Bot";
 
 export class Channel {
   private readonly _bot: Bot;
-  private readonly _roomId: number | string;
+  private readonly _roomId: number;
   private _channelName: string;
   private _isTwitchPartner: boolean;
   private _maxMessageLength: number;
@@ -15,7 +15,7 @@ export class Channel {
   private channelUserBlacklist: Set<number> = new Set<number>()
 
 
-  constructor (bot: Bot, roomId: number | string, channelName: string, isTwitchPartner: boolean, maxMessageLength: number, minCooldown: number) {
+  constructor (bot: Bot, roomId: number, channelName: string, isTwitchPartner: boolean, maxMessageLength: number, minCooldown: number) {
     this._bot = bot;
     this._roomId = roomId
     this._channelName = channelName
@@ -52,7 +52,7 @@ export class Channel {
     return this._bot
   }
 
-  get roomId (): number | string {
+  get roomId (): number {
     return this._roomId
   }
 
