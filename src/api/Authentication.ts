@@ -138,7 +138,7 @@ export class Authentication {
         Logger.warn(`Token refresh errored for ${this.userName} due to missing access_token in response:\n${util.inspect(result.data)}`)
       }
     } catch (e) {
-      Logger.error(`Token refresh errored for ${this.userName}:\n${e.response.statusText}`)
+      Logger.error(`Token refresh errored for ${this.userName}:\n${e}`)
     }
   }
 
