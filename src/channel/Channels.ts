@@ -44,7 +44,7 @@ export class Channels {
     return this._sqlChannels.values()
   }
 
-  getAllRoomIds (): number[] {
+  public getAllRoomIds (): number[] {
     return Array.from(this._sqlChannels.keys())
   }
 
@@ -70,7 +70,7 @@ export class Channels {
     //TODO: trigger irc join
   }
 
-  deleteChannel (sqlChannel: Channel): void {
+  public deleteChannel (sqlChannel: Channel): void {
     this._sqlChannels.delete(sqlChannel.roomId)
 
     //TODO: trigger irc leave

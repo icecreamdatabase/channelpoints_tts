@@ -16,7 +16,7 @@ export class Authentication {
   private readonly _bot: Bot
   private _botData: IBotData = {}
 
-  constructor (bot: Bot) {
+  public constructor (bot: Bot) {
     this._bot = bot
 
     setInterval(this.validate.bind(this), this._validateInterval)
@@ -25,7 +25,7 @@ export class Authentication {
     this.bot.on(this.bot.eventNameRefresh, this.update.bind(this))
   }
 
-  async init () {
+  public async init () {
     await this.update()
     // if this._authData is not {} --- update() will set it to {} if something failed. This should never happen!
     if (this.accessToken) {
@@ -39,21 +39,21 @@ export class Authentication {
     return this._bot
   }
 
-  get userId (): number | string {
+  public get userId (): number | string {
     if (this._botData.userId === undefined) {
       throw new Error("Auth: userId is undefined!")
     }
     return this._botData.userId
   }
 
-  get userName (): string {
+  public get userName (): string {
     if (this._botData.userName === undefined) {
       throw new Error("Auth: userName is undefined!")
     }
     return this._botData.userName
   }
 
-  get clientId (): string {
+  public get clientId (): string {
     if (this._botData.clientId === undefined) {
       throw new Error("Auth: clientId is undefined!")
     }
@@ -67,7 +67,7 @@ export class Authentication {
     return this._botData.clientSecret
   }
 
-  get accessToken (): string {
+  public get accessToken (): string {
     if (this._botData.access_token === undefined) {
       throw new Error("Auth: accessToken is undefined!")
     }
@@ -81,21 +81,21 @@ export class Authentication {
     return this._botData.refresh_token
   }
 
-  get supinicApiUser (): number {
+  public get supinicApiUser (): number {
     if (this._botData.supinicApiUser === undefined) {
       throw new Error("Auth: supinicApiUser is undefined!")
     }
     return this._botData.supinicApiUser
   }
 
-  get supinicApiKey (): string {
+  public get supinicApiKey (): string {
     if (this._botData.supinicApiKey === undefined) {
       throw new Error("Auth: supinicapiKey is undefined!")
     }
     return this._botData.supinicApiKey
   }
 
-  async validate () {
+  private async validate () {
     try {
       const result = await Axios({
         method: 'get',
@@ -125,7 +125,7 @@ export class Authentication {
     }
   }
 
-  async refresh () {
+  private async refresh () {
     try {
       const result = await Axios({
         method: 'post',
@@ -150,7 +150,7 @@ export class Authentication {
     }
   }
 
-  async revoke () {
+  private async revoke () {
     try {
       await Axios({
         method: 'post',
@@ -166,7 +166,7 @@ export class Authentication {
     }
   }
 
-  async update () {
+  private async update () {
     this._botData = await SqlBotData.getBotData()
   }
 }

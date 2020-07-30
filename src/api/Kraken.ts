@@ -30,14 +30,11 @@ export class Kraken {
     this._bot = bot
   }
 
-  /**
-   * @return {Bot}
-   */
-  get bot () {
+  private get bot () {
     return this._bot
   }
 
-  async request<T> (pathAppend: string, method: Method = 'GET'): Promise<T/* | IKrakenError*/> {
+  private async request<T> (pathAppend: string, method: Method = 'GET'): Promise<T/* | IKrakenError*/> {
     try {
       let result = await Axios({
         url: `https://api.twitch.tv/kraken/${pathAppend}`,
@@ -59,22 +56,22 @@ export class Kraken {
   /**
    * Gets info about current live broadcast for channelID
    */
-  async streamInfo (channelID: number | string): Promise<IKrakenStreams> {
+  public async streamInfo (channelID: number | string): Promise<IKrakenStreams> {
     return await this.request<IKrakenStreams>(`streams/${channelID}`)
   }
 
   /**
    * Get an array with info of past 100 broadcast vods
    */
-  async getVods (channelID: number | string): Promise<IKrakenChannelVideos> {
+  public async getVods (channelID: number | string): Promise<IKrakenChannelVideos> {
     return await this.request<IKrakenChannelVideos>(`channels/${channelID}/videos?broadcast_type=archive&limit=100`)
   }
 
-//TODO: cleanup of duplicated stuff
+  //TODO: cleanup of duplicated stuff
   /**
    * receive login name from a single userid
    */
-  async loginFromUserId (userId: number | string): Promise<string> {
+  public async loginFromUserId (userId: number | string): Promise<string> {
     let response = await this.userInfo(userId)
     if (Object.hasOwnProperty.call(response, 'login')) {
       return response.login
@@ -83,11 +80,11 @@ export class Kraken {
     }
   }
 
-//TODO: cleanup of duplicated stuff
+  //TODO: cleanup of duplicated stuff
   /**
    * Returns the userId from a single login
    */
-  async userIdFromLogin (username: string): Promise<number | string> {
+  public async userIdFromLogin (username: string): Promise<number | string> {
     let response = await this.userInfosFromLogins([username])
 
     if (response._total === 0 || response.users.length === 0) {
@@ -97,13 +94,13 @@ export class Kraken {
     }
   }
 
-//TODO: cleanup of duplicated stuff
+  //TODO: cleanup of duplicated stuff
   /**
    * Returns the userInfo from an array of usernames
    * directly returns the ["users"]
    * automatically handles if more than 100 usernames are requested
    */
-  async userDataFromIds (userIds: number[] | string[]): Promise<IKrakenUser[]> {
+  public async userDataFromIds (userIds: number[] | string[]): Promise<IKrakenUser[]> {
     let chunkSize = 100
     let users: IKrakenUser[] = []
 
@@ -130,7 +127,7 @@ export class Kraken {
    * directly returns the ["users"]
    * automatically handles if more than 100 usernames are requested
    */
-  async userDataFromLogins (usernames: string[]): Promise<IKrakenUser[]> {
+  public async userDataFromLogins (usernames: string[]): Promise<IKrakenUser[]> {
     let chunkSize = 100
     let users: IKrakenUser[] = []
 
@@ -155,7 +152,7 @@ export class Kraken {
    * Return the userInfo from an array of ids
    * max 100 entries are allowed
    */
-  async userInfosFromIds (ids: number[] | string[]): Promise<IKrakenUsers> {
+  private async userInfosFromIds (ids: number[] | string[]): Promise<IKrakenUsers> {
     return await this.request('users?id=' + ids.join(','))
   }
 
@@ -163,7 +160,7 @@ export class Kraken {
    * Return the userInfo from an array of usernames
    * max 100 entries are allowed
    */
-  async userInfosFromLogins (usernames: string[]): Promise<IKrakenUsers> {
+  private async userInfosFromLogins (usernames: string[]): Promise<IKrakenUsers> {
     usernames.map((entry: string) => entry.replace(/#/, ''))
     return await this.request('users?login=' + usernames.join(','))
   }
@@ -171,35 +168,35 @@ export class Kraken {
   /**
    * Accesses kraken/users/userID/chat
    */
-  async userInfo (userId: number | string): Promise<IKrakenUsersChat> {
+  public async userInfo (userId: number | string): Promise<IKrakenUsersChat> {
     return await this.request('users/' + userId + '/chat')
   }
 
   /**
    * Accesses kraken/users/userID/chat/channels/roomID
    */
-  async userInChannelInfo (userId: number | string, roomId: number | string): Promise<IKrakenUsersChatChannel> {
+  public async userInChannelInfo (userId: number | string, roomId: number | string): Promise<IKrakenUsersChatChannel> {
     return await this.request('users/' + userId + '/chat/channels/' + roomId)
   }
 
   /**
    * Accesses kraken/channels/roomId
    */
-  async channelInfo (roomId: number | string): Promise<IKrakenChannel> {
+  public async channelInfo (roomId: number | string): Promise<IKrakenChannel> {
     return await this.request('channels/' + roomId)
   }
 
   /**
    * Get Channel objects for an array of roomIds
    */
-  async channelInfos (roomIds: number[] | string[]): Promise<IKrakenChannels> {
+  private async channelInfos (roomIds: number[] | string[]): Promise<IKrakenChannels> {
     return await this.request('channels?id=' + roomIds.join(','))
   }
 
   /**
    * Get Channel objects for an array of roomIds
    */
-  async channelInfosFromIds (roomIds: number[] | string[]): Promise<IKrakenChannel[]> {
+  public async channelInfosFromIds (roomIds: number[] | string[]): Promise<IKrakenChannel[]> {
     let chunkSize = 100
     let channels: IKrakenChannel[] = []
 
@@ -220,7 +217,7 @@ export class Kraken {
     return channels
   }
 
-  async followTime (userId: number | string, roomId: number | string): Promise<{ followDate: Date | undefined, followTimeMs: number, followTimeS: number, followtimeMin: number, followtimeH: number, followtimeD: number, followtimeMon: number, followtimeY: number }> {
+  public async followTime (userId: number | string, roomId: number | string): Promise<{ followDate: Date | undefined, followTimeMs: number, followTimeS: number, followtimeMin: number, followtimeH: number, followtimeD: number, followtimeMon: number, followtimeY: number }> {
     let response = await this.request<IKrakenFollowsChannel>('users/' + userId + '/follows/channels/' + roomId).catch(e => Logger.log(e))
     Logger.log(response)
     let returnObj = {

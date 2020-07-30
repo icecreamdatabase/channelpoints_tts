@@ -16,7 +16,7 @@ export class Channel {
   private channelUserBlacklist: Set<number> = new Set<number>()
 
 
-  constructor (bot: Bot, roomId: number, channelName: string, isTwitchPartner: boolean, maxMessageLength: number, minCooldown: number) {
+  public constructor (bot: Bot, roomId: number, channelName: string, isTwitchPartner: boolean, maxMessageLength: number, minCooldown: number) {
     this._bot = bot;
     this._roomId = roomId
     this._channelName = channelName
@@ -31,7 +31,7 @@ export class Channel {
    * Use this like an overloaded constructor.
    * @constructor
    */
-  static FromISqlChannel (bot: Bot, channel: ISqlChannel): Channel {
+  public static FromISqlChannel (bot: Bot, channel: ISqlChannel): Channel {
     return new Channel(bot,
       channel.roomId,
       channel.channelName,
@@ -49,59 +49,59 @@ export class Channel {
     }
   }
 
-  get bot (): Bot {
+  private get bot (): Bot {
     return this._bot
   }
 
-  get roomId (): number {
+  public get roomId (): number {
     return this._roomId
   }
 
-  get channelName (): string {
+  public get channelName (): string {
     return this._channelName
   }
 
-  set channelName (value: string) {
+  public set channelName (value: string) {
     if (this._channelName !== value) {
       this._channelName = value
       SqlChannels.updateChannelInDb(this).then()
     }
   }
 
-  get isTwitchPartner (): boolean {
+  public get isTwitchPartner (): boolean {
     return this._isTwitchPartner
   }
 
-  set isTwitchPartner (value: boolean) {
+  public set isTwitchPartner (value: boolean) {
     if (this._isTwitchPartner !== value) {
       this._isTwitchPartner = value
       SqlChannels.updateChannelInDb(this).then()
     }
   }
 
-  get maxMessageLength (): number {
+  public get maxMessageLength (): number {
     return this._maxMessageLength
   }
 
-  set maxMessageLength (value: number) {
+  public set maxMessageLength (value: number) {
     if (this._maxMessageLength !== value) {
       this._maxMessageLength = value
       SqlChannels.updateChannelInDb(this).then()
     }
   }
 
-  get minCooldown (): number {
+  public get minCooldown (): number {
     return this._minCooldown
   }
 
-  set minCooldown (value: number) {
+  public set minCooldown (value: number) {
     if (this._minCooldown !== value) {
       this._minCooldown = value
       SqlChannels.updateChannelInDb(this).then()
     }
   }
 
-  async getChatters (): Promise<string[]> {
+  public async getChatters (): Promise<string[]> {
     return await ApiOther.getAllUsersInChannel(this.channelName)
   }
 }

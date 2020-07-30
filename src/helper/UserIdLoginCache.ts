@@ -24,7 +24,7 @@ export class UserIdLoginCache {
   }
 
   public async init (): Promise<void> {
-    await this.preloadFromChannels()
+    await this.prefetchFromDatabase()
     await this.checkNameChanges()
   }
 
@@ -32,8 +32,8 @@ export class UserIdLoginCache {
     return this._bot
   }
 
-  public async preloadFromChannels (): Promise<void> {
-    for (const channel of this.bot.channels.getAllChannels()) {
+  public async prefetchFromDatabase (): Promise<void> {
+    for (const channel of await SqlChannels.getChannels()) {
       UserIdLoginCache.userNameById.set(channel.roomId, channel.channelName)
       UserIdLoginCache.userIdByName.set(channel.channelName.toLowerCase(), channel.roomId)
     }
@@ -45,16 +45,14 @@ export class UserIdLoginCache {
       if (UserIdLoginCache.userNameById.has(parseInt(user._id, 10))
         && UserIdLoginCache.userNameById.get(parseInt(user._id, 10)) !== user.name) {
         // Person must have changed their name
-        Logger.debug(`############################################################`)
-        Logger.debug(`${user._id} changed their name: ${UserIdLoginCache.userNameById.get(parseInt(user._id, 10))} --> ${user.name}`)
-        Logger.debug(`############################################################`)
+        Logger.debug(`## Name change (${user._id}): ${UserIdLoginCache.userNameById.get(parseInt(user._id, 10))} --> ${user.name}`)
         const channel = await this.bot.channels.getChannel(parseInt(user._id, 10))
         if (channel) {
           channel.channelName = user.name
         }
       }
     }
-    await this.preloadFromChannels()
+    await this.prefetchFromDatabase()
   }
 
   async prefetchListOfIds (ids: number[]): Promise<void> {

@@ -10,6 +10,10 @@ export class Irc {
 
   }
 
+  public async init () {
+
+  }
+
   private get bot (): Bot {
     return this._bot
   }

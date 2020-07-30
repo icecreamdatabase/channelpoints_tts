@@ -37,27 +37,30 @@ export class Bot extends EventEmitter {
     this.updateGlobalUserBlacklist()
 
     this.on(this.eventNameRefresh, this.updateGlobalUserBlacklist.bind(this))
-    this.on(this.eventNameBotReady, () => this.onAuthReady())
 
     this.init().then()
   }
 
   private async init (): Promise<void> {
     try {
+      // The order of these matter!
+      // E.g.: auth is needed in later ones. irc is needed in order to join channels
       await this.authentication.init()
+
+      const promiseUserIdLoginCache = this.userIdLoginCache.init()
+      const promiseIrc = this.irc.init()
+      //Doesn't matter which of the two are finished first. But both have to finish before channels can run it's init.
+      await Promise.all([promiseUserIdLoginCache, promiseIrc])
+
       await this.channels.init()
-      await this.userIdLoginCache.init()
 
 
+      Logger.info("Bot fully started.")
       this.emit(this.eventNameBotReady)
     } catch (e) {
       Logger.error(`Error during bot startup.:\n${e}\n\n\nTrying again in ${this.initErrorRestartDelay} seconds`)
       setTimeout(() => process.abort(), this.initErrorRestartDelay)
     }
-  }
-
-  onAuthReady () {
-    Logger.info("Authentication done. Starting bot...")
   }
 
   get userIdLoginCache (): UserIdLoginCache {

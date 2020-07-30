@@ -13,14 +13,11 @@ export class Helix {
     this._bot = bot
   }
 
-  /**
-   * @return {Bot}
-   */
-  get bot () {
+  private get bot () {
     return this._bot
   }
 
-  async request (pathAppend: string, method: Method = 'GET') : Promise<any>{
+  private async request (pathAppend: string, method: Method = 'GET') : Promise<any>{
     try {
       let result = await Axios({
         url: `https://api.twitch.tv/helix/${pathAppend}`,

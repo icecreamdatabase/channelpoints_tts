@@ -8,7 +8,7 @@ const SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
 export class Other {
   private readonly _bot: Bot;
 
-  constructor (bot: Bot) {
+  public constructor (bot: Bot) {
     this._bot = bot
 
     setInterval(() => Other.supinicApiPing(this.bot.authentication.supinicApiUser, this.bot.authentication.supinicApiKey), SUPINIC_API_PING_INTERVAL)
@@ -23,7 +23,7 @@ export class Other {
    * @param channelName channel to check
    * @returns {Promise<string[]>} array of chatters
    */
-  static async getAllUsersInChannel (channelName: string): Promise<string[]> {
+  public static async getAllUsersInChannel (channelName: string): Promise<string[]> {
     if (channelName.charAt(0) === '#') {
       channelName = channelName.substring(1)
     }
@@ -40,7 +40,7 @@ export class Other {
    * @param channelName
    * @returns {Promise<boolean>}
    */
-  static async isUserInChannel (loginToCheck: string, channelName: string): Promise<boolean> {
+  public static async isUserInChannel (loginToCheck: string, channelName: string): Promise<boolean> {
     let allChatters = await this.getAllUsersInChannel(channelName)
     return this.stringEntryInArray(allChatters, loginToCheck)
   }
@@ -51,7 +51,7 @@ export class Other {
    * @param entryToCheck Entry to check
    * @returns {boolean} includes
    */
-  static stringEntryInArray (array: string[], entryToCheck: string): boolean {
+  public static stringEntryInArray (array: string[], entryToCheck: string): boolean {
     if (array.length > 0) {
       for (let entry of array) {
         if (entry.toLowerCase() === entryToCheck.toLowerCase()) {
@@ -70,7 +70,7 @@ export class Other {
    * @param key supinicApiKey
    * @returns {Promise<boolean>} Was ping successful
    */
-  static async supinicApiPing (user: number, key: string): Promise<boolean> {
+  private static async supinicApiPing (user: number, key: string): Promise<boolean> {
     if (user !== undefined && key !== undefined) {
       try {
         await Axios({
@@ -92,7 +92,7 @@ export class Other {
    * @param {string} url
    * @return {Promise<string>}
    */
-  static async getWebsiteContent (url: string): Promise<string> {
+  public static async getWebsiteContent (url: string): Promise<string> {
     try {
       return (await Axios(url)).data
     } catch (e) {
