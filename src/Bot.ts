@@ -63,45 +63,45 @@ export class Bot extends EventEmitter {
     }
   }
 
-  get userIdLoginCache (): UserIdLoginCache {
+  public get userIdLoginCache (): UserIdLoginCache {
     return this._userIdLoginCache
   }
 
-  get apiHelix (): ApiHelix {
+  public get apiHelix (): ApiHelix {
     return this._apiHelix
   }
 
-  get apiKraken (): ApiKraken {
+  public get apiKraken (): ApiKraken {
     return this._apiKraken
   }
 
-  get apiOther (): ApiOther { // Do we never need the instance? The instance only exists for the supinic api ping
+  public get apiOther (): ApiOther { // Do we never need the instance? The instance only exists for the supinic api ping
     return this._apiOther
   }
 
-  get channels (): Channels {
+  public get channels (): Channels {
     return this._channels
   }
 
-  get irc () {
+  public get irc () {
     if (this._irc === undefined) {
       throw new Error("Bot: irc is undefined!")
     }
     return this._irc
   }
 
-  get pubSub () {
+  public get pubSub () {
     if (this._pubSub === undefined) {
       throw new Error("Bot: pubSub is undefined!")
     }
     return this._pubSub
   }
 
-  get userId () {
+  public get userId () {
     return this.authentication.userId
   }
 
-  get userName () {
+  public get userName () {
     return this.authentication.userName
   }
 

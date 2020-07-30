@@ -39,7 +39,7 @@ export class Authentication {
     return this._bot
   }
 
-  public get userId (): number | string {
+  public get userId (): number {
     if (this._botData.userId === undefined) {
       throw new Error("Auth: userId is undefined!")
     }

@@ -5,7 +5,7 @@ import Sql from "./../Sql"
 import {RowDataPacket, FieldPacket} from "mysql2";
 
 export interface IBotData {
-  userId?: string | number,
+  userId?: number,
   userName?: string,
   clientId?: string,
   clientSecret?: string,
