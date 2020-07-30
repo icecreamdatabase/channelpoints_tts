@@ -16,18 +16,26 @@ export class Authentication {
   private readonly _bot: Bot
   private _botData: IBotData = {}
 
-  constructor (bot: Bot, authReadyCb: () => void) {
+  constructor (bot: Bot) {
     this._bot = bot
 
     setInterval(this.validate.bind(this), this._validateInterval)
     setInterval(this.update.bind(this), this._updateInterval)
 
     this.bot.on(this.bot.eventNameRefresh, this.update.bind(this))
-
-    this.init().then(() => authReadyCb())
   }
 
-  get bot (): Bot {
+  async init () {
+    await this.update()
+    // if this._authData is not {} --- update() will set it to {} if something failed. This should never happen!
+    if (this.accessToken) {
+      await this.validate()
+    } else {
+      Logger.error(`An account has no valid auth data in the database!\n${this.userId}`)
+    }
+  }
+
+  private get bot (): Bot {
     return this._bot
   }
 
@@ -160,16 +168,6 @@ export class Authentication {
 
   async update () {
     this._botData = await SqlBotData.getBotData()
-  }
-
-  async init () {
-    await this.update()
-    // if this._authData is not {} --- update() will set it to {} if something failed. This should never happen!
-    if (this.accessToken) {
-      await this.validate()
-    } else {
-      Logger.error(`An account has no valid auth data in the database!\n${this.userId}`)
-    }
   }
 }
 

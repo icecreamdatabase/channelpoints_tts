@@ -29,6 +29,6 @@ export class SqlBotData {
   public static async set (key: string, value: string): Promise<void> {
     await Sql.query(` INSERT INTO botData (\`key\`, value)
                       VALUES (?, ?)
-                      ON DUPLICATE KEY UPDATE value = ?; `, [key, value, value])
+                      ON DUPLICATE KEY UPDATE value = VALUES(value); `, [key, value])
   }
 }

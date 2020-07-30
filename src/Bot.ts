@@ -14,11 +14,12 @@ import {Logger} from "./helper/Logger";
 const UPDATE_GLOBAL_USER_BLACKLIST_INTERVAL = 120000 // 2 minutes
 
 export class Bot extends EventEmitter {
+  private readonly initErrorRestartDelay = 15000
   public readonly eventNameRefresh = 'refresh'
   public readonly eventNameBotReady = 'ready'
   /* The order of these matter! */
   /* Auth needs to be first! */
-  public authentication: Authentication = new Authentication(this, () => this.emit(this.eventNameBotReady));
+  public authentication: Authentication = new Authentication(this);
   private _userIdLoginCache: UserIdLoginCache = new UserIdLoginCache(this);
   private _apiHelix: ApiHelix = new ApiHelix(this)
   private _apiKraken: ApiKraken = new ApiKraken(this)
@@ -37,10 +38,26 @@ export class Bot extends EventEmitter {
 
     this.on(this.eventNameRefresh, this.updateGlobalUserBlacklist.bind(this))
     this.on(this.eventNameBotReady, () => this.onAuthReady())
+
+    this.init().then()
+  }
+
+  private async init (): Promise<void> {
+    try {
+      await this.authentication.init()
+      await this.channels.init()
+      await this.userIdLoginCache.init()
+
+
+      this.emit(this.eventNameBotReady)
+    } catch (e) {
+      Logger.error(`Error during bot startup.:\n${e}\n\n\nTrying again in ${this.initErrorRestartDelay} seconds`)
+      setTimeout(() => process.abort(), this.initErrorRestartDelay)
+    }
   }
 
   onAuthReady () {
-    Logger.info("Authentification done. Starting bot...")
+    Logger.info("Authentication done. Starting bot...")
   }
 
   get userIdLoginCache (): UserIdLoginCache {

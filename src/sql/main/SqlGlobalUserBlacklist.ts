@@ -22,8 +22,7 @@ export class SqlGlobalUserBlacklist {
    * @param userId
    */
   static addUserId (userId: number | string) {
-    Sql.query(` INSERT INTO globalUserBlacklist (userId)
-                VALUES (?)
-                ON DUPLICATE KEY UPDATE addDate = DEFAULT;`, [userId])
+    Sql.query(` INSERT IGNORE INTO globalUserBlacklist (userId)
+                VALUES (?);`, [userId])
   }
 }

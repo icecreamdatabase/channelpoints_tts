@@ -23,16 +23,17 @@ export class UserIdLoginCache {
     this.bot.on(this.bot.eventNameRefresh, () => this.checkNameChanges())
   }
 
-  /**
-   * @return {Bot}
-   */
-  get bot () {
+  public async init (): Promise<void> {
+    await this.preloadFromChannels()
+    await this.checkNameChanges()
+  }
+
+  private get bot () {
     return this._bot
   }
 
-  async prefetchFromDatabase (): Promise<void> {
-    const channels = await SqlChannels.getChannels()
-    for (const channel of channels) {
+  public async preloadFromChannels (): Promise<void> {
+    for (const channel of this.bot.channels.getAllChannels()) {
       UserIdLoginCache.userNameById.set(channel.roomId, channel.channelName)
       UserIdLoginCache.userIdByName.set(channel.channelName.toLowerCase(), channel.roomId)
     }
@@ -53,10 +54,10 @@ export class UserIdLoginCache {
         }
       }
     }
-    await this.prefetchFromDatabase()
+    await this.preloadFromChannels()
   }
 
-  async prefetchListOfIds (ids: string[] | number[]): Promise<void> {
+  async prefetchListOfIds (ids: number[]): Promise<void> {
     let users = await this.bot.apiKraken.userDataFromIds(ids)
     for (let user of users) {
       UserIdLoginCache.userNameById.set(parseInt(user._id, 10), user.name)
@@ -107,7 +108,7 @@ export class UserIdLoginCache {
     UserIdLoginCache.userIdByName.clear()
     await this.prefetchListOfIds(currentIds)
     //await this.checkNameChanges() // this is included in updateBotChannels currently
-    await this.bot.channels.updateFromDb()
+    //await this.bot.channels.updateFromDb() // is this needed?
     Logger.debug(`Refreshed UserIdLoginCache. ${this.bot.userId} (${this.bot.userName}) is currently tracking ${Object.keys(UserIdLoginCache.userNameById).length} ids.`)
   }
 }

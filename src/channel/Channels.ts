@@ -15,10 +15,13 @@ export class Channels {
     this.updateFromDb().then()
     setInterval(() => this.updateFromDb(), this.channelRefreshInterval)
     this.bot.on(this.bot.eventNameRefresh, () => this.updateFromDb())
-    this.bot.on(this.bot.eventNameBotReady, () => this.updateFromDb().then(() => this.bot.userIdLoginCache.checkNameChanges())) // TODO: Not happy with this yet.
   }
 
-  public get bot (): Bot {
+  public async init (): Promise<void> {
+    await this.updateFromDb()
+  }
+
+  private get bot (): Bot {
     return this._bot;
   }
 

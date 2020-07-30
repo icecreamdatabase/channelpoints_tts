@@ -21,20 +21,15 @@ export class SqlChannels {
         WHERE enabled = b'1';`)
 
     return <ISqlChannel[]>rows
-    //for (const row of rows) {
-    //  const sqlChannels: ISqlChannel[] = []
-    //  sqlChannels.push(<ISqlChannel>row)
-    //}
-    //return sqlChannels
   }
 
   static async addOrUpdateChannel (roomId: number, channelName: string, isTwitchPartner: boolean, maxMessageLength: number, minCooldown: number): Promise<void> {
     await Sql.query(`INSERT INTO channels (roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown)
                      VALUES (?, ?, ?, ?, ?)
-                     ON DUPLICATE KEY UPDATE channelName      = channelName,
-                                             isTwitchPartner  = isTwitchPartner,
-                                             maxMessageLength = maxMessageLength,
-                                             minCooldown      = minCooldown;
+                     ON DUPLICATE KEY UPDATE channelName      = VALUES(channelName),
+                                             isTwitchPartner  = VALUES(isTwitchPartner),
+                                             maxMessageLength = VALUES(maxMessageLength),
+                                             minCooldown      = VALUES(minCooldown);
     `, [roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown])
   }
 
