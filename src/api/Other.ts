@@ -1,9 +1,22 @@
 "use strict"
 import Axios from "axios"
+import {Bot} from "../Bot";
 
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
+const SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
 export class Other {
+  private readonly _bot: Bot;
+
+  constructor (bot: Bot) {
+    this._bot = bot
+
+    setInterval(() => Other.supinicApiPing(this.bot.authentication.supinicApiUser, this.bot.authentication.supinicApiKey), SUPINIC_API_PING_INTERVAL)
+  }
+
+  private get bot (): Bot {
+    return this._bot
+  }
 
   /**
    * Get a list of users in a channel
@@ -57,8 +70,8 @@ export class Other {
    * @param key supinicApiKey
    * @returns {Promise<boolean>} Was ping successful
    */
-  static async supinicApiPing (user: number | string, key: string): Promise<boolean> {
-    if (user && key) {
+  static async supinicApiPing (user: number, key: string): Promise<boolean> {
+    if (user !== undefined && key !== undefined) {
       try {
         await Axios({
           method: 'PUT',

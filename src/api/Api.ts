@@ -1,6 +1,8 @@
 "use strict"
 
-export {Kraken} from "./Kraken"
-export {Helix} from "./Helix"
-export {Other} from "./Other"
+import {Kraken} from "./Kraken";
+
+export {Kraken as ApiKraken} from "./Kraken"
+export {Helix as ApiHelix} from "./Helix"
+export {Other as ApiOther} from "./Other"
 export {Authentication} from "./Authentication"

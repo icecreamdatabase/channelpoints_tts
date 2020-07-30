@@ -2,6 +2,7 @@
 
 import {ISqlChannel, SqlChannels} from "../sql/channel/SqlChannels";
 import {Bot} from "../Bot";
+import {ApiOther} from "../api/Api";
 
 export class Channel {
   private readonly _bot: Bot;
@@ -23,7 +24,7 @@ export class Channel {
     this._maxMessageLength = maxMessageLength
     this._minCooldown = minCooldown
 
-    this.bot.on(this.bot.refreshEventName, () => this.refresh())
+    this.bot.on(this.bot.eventNameRefresh, () => this.refresh())
   }
 
   /**
@@ -98,6 +99,10 @@ export class Channel {
       this._minCooldown = value
       SqlChannels.updateChannelInDb(this).then()
     }
+  }
+
+  async getChatters (): Promise<string[]> {
+    return await ApiOther.getAllUsersInChannel(this.channelName)
   }
 }
 

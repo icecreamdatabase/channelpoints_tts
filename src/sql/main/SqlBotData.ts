@@ -11,7 +11,7 @@ export interface IBotData {
   clientSecret?: string,
   access_token?: string,
   refresh_token?: string
-  supinicApiUser?: string | number,
+  supinicApiUser?: number,
   supinicApiKey?: string
 }
 

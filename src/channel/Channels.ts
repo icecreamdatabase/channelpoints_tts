@@ -6,12 +6,16 @@ import {SqlChannels} from "../sql/channel/SqlChannels";
 import {Bot} from "../Bot";
 
 export class Channels {
+  private readonly channelRefreshInterval: number = 30000 //30 seconds
   private readonly _bot: Bot;
   private readonly _sqlChannels: Map<number, Channel> = new Map<number, Channel>()
 
   constructor (bot: Bot) {
     this._bot = bot;
     this.updateFromDb().then()
+    setInterval(() => this.updateFromDb(), this.channelRefreshInterval)
+    this.bot.on(this.bot.eventNameRefresh, () => this.updateFromDb())
+    this.bot.on(this.bot.eventNameBotReady, () => this.updateFromDb().then(() => this.bot.userIdLoginCache.checkNameChanges())) // TODO: Not happy with this yet.
   }
 
   public get bot (): Bot {

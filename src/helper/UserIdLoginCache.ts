@@ -19,7 +19,8 @@ export class UserIdLoginCache {
 
     setInterval(this.updateMaps.bind(this), CLEANUPINTERVAL)
 
-    this.bot.on(this.bot.refreshEventName, this.updateMaps.bind(this))
+    this.bot.on(this.bot.eventNameRefresh, () => this.updateMaps())
+    this.bot.on(this.bot.eventNameRefresh, () => this.checkNameChanges())
   }
 
   /**
@@ -38,7 +39,7 @@ export class UserIdLoginCache {
   }
 
   async checkNameChanges (): Promise<void> {
-    let users = await this.bot.kraken.userDataFromIds(this.bot.channels.getAllRoomIds())
+    let users = await this.bot.apiKraken.userDataFromIds(this.bot.channels.getAllRoomIds())
     for (let user of users) {
       if (UserIdLoginCache.userNameById.has(parseInt(user._id, 10))
         && UserIdLoginCache.userNameById.get(parseInt(user._id, 10)) !== user.name) {
@@ -56,7 +57,7 @@ export class UserIdLoginCache {
   }
 
   async prefetchListOfIds (ids: string[] | number[]): Promise<void> {
-    let users = await this.bot.kraken.userDataFromIds(ids)
+    let users = await this.bot.apiKraken.userDataFromIds(ids)
     for (let user of users) {
       UserIdLoginCache.userNameById.set(parseInt(user._id, 10), user.name)
       UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), parseInt(user._id, 10))
@@ -65,7 +66,7 @@ export class UserIdLoginCache {
 
   async idToName (id: number): Promise<undefined | string> {
     if (!UserIdLoginCache.userNameById.has(id)) {
-      let users = await this.bot.kraken.userDataFromIds([id])
+      let users = await this.bot.apiKraken.userDataFromIds([id])
       if (users.length > 0) {
         let user = users[0]
         UserIdLoginCache.userNameById.set(parseInt(user._id, 10), user.name)
@@ -86,7 +87,7 @@ export class UserIdLoginCache {
       name = name.substr(1)
     }
     if (!UserIdLoginCache.userIdByName.has(name)) {
-      let users = await this.bot.kraken.userDataFromLogins([name])
+      let users = await this.bot.apiKraken.userDataFromLogins([name])
       if (users.length > 0) {
         let user = users[0]
         UserIdLoginCache.userNameById.set(parseInt(user._id, 10), user.name)

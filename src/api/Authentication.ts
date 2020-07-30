@@ -22,7 +22,7 @@ export class Authentication {
     setInterval(this.validate.bind(this), this._validateInterval)
     setInterval(this.update.bind(this), this._updateInterval)
 
-    this.bot.on(this.bot.refreshEventName, this.update.bind(this))
+    this.bot.on(this.bot.eventNameRefresh, this.update.bind(this))
 
     this.init().then(() => authReadyCb())
   }
@@ -73,7 +73,7 @@ export class Authentication {
     return this._botData.refresh_token
   }
 
-  get supinicApiUser (): number | string {
+  get supinicApiUser (): number {
     if (this._botData.supinicApiUser === undefined) {
       throw new Error("Auth: supinicApiUser is undefined!")
     }
