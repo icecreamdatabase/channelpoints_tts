@@ -1,6 +1,6 @@
 "use strict"
-// noinspection JSUnusedGlobalSymbols
 
+// noinspection JSUnusedGlobalSymbols
 export enum TimeConversion {
   YearToSeconds = 31556952,
   MonthToSeconds = 2592000,
@@ -10,6 +10,7 @@ export enum TimeConversion {
   SecondsToMilliseconds = 1000
 }
 
+// noinspection JSUnusedGlobalSymbols
 export enum ChatLimit {
   NORMAL = 30,
   NORMAL_MOD = 100,
@@ -19,6 +20,7 @@ export enum ChatLimit {
   VERIFIED_MOD = 7500,
 }
 
+// noinspection JSUnusedGlobalSymbols
 export enum IrcWsCmds {
   AUTH = "auth",
   JOIN = "join",
@@ -30,6 +32,7 @@ export enum IrcWsCmds {
   GET_IRC_STATES = "ircstates"
 }
 
+// noinspection JSUnusedGlobalSymbols
 export enum UserLevels {
   DEFAULT = 0,
   PLEB = 0,

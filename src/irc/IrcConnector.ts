@@ -40,6 +40,10 @@ export class IrcConnector extends EventEmitter {
     //this.connect()
   }
 
+  public async init (): Promise<void> {
+    this.connect()
+  }
+
   private get bot (): Bot {
     return this._bot
   }
@@ -52,7 +56,7 @@ export class IrcConnector extends EventEmitter {
     if (!Array.isArray(channels)) {
       channels = [channels]
     }
-    const data: IWsDataJoinPartSet = {botUserId: this.bot.userId, channelNames: channels};
+    const data: IWsDataJoinPartSet = {botUserId: this.bot.userId, channelNames: channels}
     await this.send(IrcWsCmds.JOIN, data)
   }
 
@@ -60,7 +64,7 @@ export class IrcConnector extends EventEmitter {
     if (!Array.isArray(channels)) {
       channels = [channels]
     }
-    const data: IWsDataJoinPartSet = {botUserId: this.bot.userId, channelNames: channels};
+    const data: IWsDataJoinPartSet = {botUserId: this.bot.userId, channelNames: channels}
     await this.send(IrcWsCmds.PART, data)
   }
 
@@ -73,11 +77,11 @@ export class IrcConnector extends EventEmitter {
     if (!Array.isArray(channels)) {
       channels = [channels]
     }
-    const data: IWsDataJoinPartSet = {botUserId: this.bot.userId, channelNames: channels};
+    const data: IWsDataJoinPartSet = {botUserId: this.bot.userId, channelNames: channels}
     await this.send(IrcWsCmds.SET_CHANNELS, data)
   }
 
-  sendWhisper (targetUser: string, message: string) {
+  sendWhisper (targetUser: string, message: string): void {
     this.sayWithBoth(this.bot.userId, this.bot.userName, `.w ${targetUser} ${message}`)
   }
 
@@ -87,7 +91,7 @@ export class IrcConnector extends EventEmitter {
    * @param message
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
-  sayWithMsgObj (msgObj: any/* TODO */, message: string, useSameSendConnectionAsPrevious?: boolean) {
+  sayWithMsgObj (msgObj: any/* TODO */, message: string, useSameSendConnectionAsPrevious?: boolean): void {
     this.sayWithBoth(msgObj.roomId, msgObj.channel, message, useSameSendConnectionAsPrevious)
   }
 
@@ -99,7 +103,7 @@ export class IrcConnector extends EventEmitter {
    * @param {string} message
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
-  sayWithBoth (channelId: number, channelName: string, message: string, useSameSendConnectionAsPrevious?: boolean) {
+  sayWithBoth (channelId: number, channelName: string, message: string, useSameSendConnectionAsPrevious?: boolean): void {
     const data: IWsDataMain = {
       cmd: IrcWsCmds.SEND,
       data: {
@@ -111,17 +115,17 @@ export class IrcConnector extends EventEmitter {
         maxMessageLength: this.bot.channels.getChannel(channelId)?.maxMessageLength
       },
       version: this.version,
-      applicationId: config.wsConfig.TwitchIrcConnectorOwnAppliationId
+      applicationId: config.wsConfig.TwitchIrcConnectorOwnApplicationId
     }
     this._wsSendQueue.push(data)
     Logger.debug(`${this.bot.userId} (${this.bot.userName}) --> ${channelName} :${message}`)
     this.emit('queue')
   }
 
-  async checkQueue () {
+  async checkQueue (): Promise<void> {
     if (this._wsSendQueue.length > 0) {
       if (this._ws && this._ws.readyState === this._ws.OPEN) {
-        const queueElement = this._wsSendQueue.shift();
+        const queueElement = this._wsSendQueue.shift()
         if (queueElement) {
           try {
             await this.sendRaw(queueElement.cmd, queueElement.data)
@@ -140,27 +144,27 @@ export class IrcConnector extends EventEmitter {
     }
   }
 
-  async send (cmd: string, data: IWsDataData) {
+  async send (cmd: string, data: IWsDataData): Promise<void> {
     this._wsSendQueue.push({cmd, data, version: undefined, applicationId: undefined})
     this.emit('queue')
   }
 
-  async sendRaw (cmd: string, data: IWsDataData, version: string = this.version, applicationId: number | string = config.wsConfig.TwitchIrcConnectorOwnApplicationId) {
+  async sendRaw (cmd: string, data: IWsDataData, version: string = this.version, applicationId: number | string = config.wsConfig.TwitchIrcConnectorOwnApplicationId): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
         /* ? 🤔 */
-        this._ws?.send(JSON.stringify({cmd, data, version, applicationId}), {}, resolve)
+        this._ws?.send(JSON.stringify({cmd, data, version, applicationId}), {}, <never>resolve) // TODO: will this never cast break?
       } catch (e) {
         reject(e)
       }
     })
   }
 
-  connect () {
+  connect (): void {
     this._ws = new WebSocket(`ws://${config.wsConfig.TwitchIrcConnectorUrl}:${config.wsConfig.TwitchIrcConnectorPort}`)
     // Connection opened
-    this._ws.addEventListener('open', event => {
-      console.log("Connected")
+    this._ws.addEventListener('open', () => {
+      Logger.log("Connected")
       // make sure we resend auth every time we connet to the server!
       this._lastSentAuthObj = undefined
       this.sendAuthData().then(() =>
@@ -175,7 +179,7 @@ export class IrcConnector extends EventEmitter {
 
     // Listen for messages
     this._ws.addEventListener('message', async event => {
-      const obj: IWsDataMain = JSON.parse(event.data);
+      const obj: IWsDataMain = JSON.parse(event.data)
       //console.log(obj)
       if (obj.cmd) {
         if (obj.cmd === IrcWsCmds.RECEIVE) {
@@ -186,14 +190,14 @@ export class IrcConnector extends EventEmitter {
       }
     })
 
-    this._ws.addEventListener('close', event => {
+    this._ws.addEventListener('close', () => {
       //Logger.debug(`IrcConnector close`)
-      this._ws.terminate()
-      this._ws.removeAllListeners()
+      this._ws?.terminate()
+      this._ws?.removeAllListeners()
       this._ws = undefined
       this.connect()
     })
-    this._ws.addEventListener('error', event => {
+    this._ws.addEventListener('error', () => {
       //Logger.debug(`IrcConnector error`)
       //this._ws.terminate()
       //this._ws.removeAllListeners()
@@ -208,7 +212,7 @@ export class IrcConnector extends EventEmitter {
     }
     try {
       Logger.info(`Requesting irc states of ${this.bot.userId} (${this.bot.userName}) to TwitchIrcConnector.`)
-      const data: IWsDataRequestIrcStates = {botUserId: this.bot.userId};
+      const data: IWsDataRequestIrcStates = {botUserId: this.bot.userId}
       await this.send(IrcWsCmds.GET_IRC_STATES, data)
     } catch (e) {
       Logger.warn(`Requesting irc states from TwitchIrcConnector failed even though the socket connection is open:\n${e}`)
@@ -226,7 +230,7 @@ export class IrcConnector extends EventEmitter {
       accessToken: this.bot.authentication.accessToken,
       rateLimitUser: this.bot.irc.rateLimitUser,
       rateLimitModerator: this.bot.irc.rateLimitModerator
-    };
+    }
     try {
       Assert.deepStrictEqual(data, this._lastSentAuthObj)
     } catch (e) {

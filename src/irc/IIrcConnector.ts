@@ -1,6 +1,6 @@
 "use strict"
 
-import {UserLevels} from "../Enums";
+import {UserLevels} from "../Enums"
 
 export interface IWsDataMain {
   cmd: string,
@@ -32,7 +32,7 @@ export interface IWsDataSend {
   maxMessageLength: number
 }
 
-export type IWsDataReceive = object[]// TODO: Make this proper
+export type IWsDataReceive = any[]// TODO: Make this proper
 
 export interface IWsDataRemoveBot {
   userId: number // TODO: make this botUserId

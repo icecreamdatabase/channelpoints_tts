@@ -1,6 +1,5 @@
 "use strict"
 import util from "util"
-import {Logger} from "../helper/Logger";
 import {Channel} from "./Channel";
 import {SqlChannels} from "../sql/channel/SqlChannels";
 import {Bot} from "../Bot";

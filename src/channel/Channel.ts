@@ -3,6 +3,7 @@
 import {ISqlChannel, SqlChannels} from "../sql/channel/SqlChannels";
 import {Bot} from "../Bot";
 import {ApiOther} from "../api/Api";
+import {UserLevels} from "../Enums";
 
 export class Channel {
   private readonly _bot: Bot;
@@ -11,6 +12,8 @@ export class Channel {
   private _isTwitchPartner: boolean;
   private _maxMessageLength: number;
   private _minCooldown: number;
+
+  private _botStatus: UserLevels = UserLevels.DEFAULT
 
   //private channelpointsSettinsg: ...
   private channelUserBlacklist: Set<number> = new Set<number>()
@@ -25,6 +28,14 @@ export class Channel {
     this._minCooldown = minCooldown
 
     this.bot.on(this.bot.eventNameRefresh, () => this.refresh())
+  }
+
+  get botStatus (): UserLevels {
+    return this._botStatus
+  }
+
+  set botStatus (value: UserLevels) {
+    this._botStatus = value
   }
 
   /**
