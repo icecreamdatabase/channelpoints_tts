@@ -1,8 +1,8 @@
 "use strict"
 import util from "util"
-import {Channel} from "./Channel";
-import {SqlChannels} from "../sql/channel/SqlChannels";
-import {Bot} from "../Bot";
+import {Channel} from "./Channel"
+import {SqlChannels} from "../sql/channel/SqlChannels"
+import {Bot} from "../Bot"
 
 export class Channels {
   private readonly channelRefreshInterval: number = 30000 //30 seconds
@@ -10,7 +10,7 @@ export class Channels {
   private readonly _sqlChannels: Map<number, Channel> = new Map<number, Channel>()
 
   constructor (bot: Bot) {
-    this._bot = bot;
+    this._bot = bot
     this.updateFromDb().then()
     setInterval(() => this.updateFromDb(), this.channelRefreshInterval)
     this.bot.on(this.bot.eventNameRefresh, () => this.updateFromDb())
@@ -21,10 +21,10 @@ export class Channels {
   }
 
   private get bot (): Bot {
-    return this._bot;
+    return this._bot
   }
 
-  public async updateFromDb () {
+  public async updateFromDb (): Promise<void> {
     const channelArr = await SqlChannels.getChannels()
     for (const channel of channelArr) {
       this.addOrUpdateChannel(Channel.FromISqlChannel(this.bot, channel))

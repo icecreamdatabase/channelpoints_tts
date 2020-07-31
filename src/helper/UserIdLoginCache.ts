@@ -1,10 +1,7 @@
 "use strict"
-import {Bot} from "../Bot";
-import {Logger} from "./Logger";
-import {Channels} from "../channel/Channels";
-import {SqlChannels} from "../sql/channel/SqlChannels";
-
-//const SqlChannels = require('./../sql/main/SqlChannels')
+import {Bot} from "../Bot"
+import {Logger} from "./Logger"
+import {SqlChannels} from "../sql/channel/SqlChannels"
 
 const CLEANUPINTERVAL = 10800000 //3 hours
 
@@ -40,8 +37,8 @@ export class UserIdLoginCache {
   }
 
   async checkNameChanges (): Promise<void> {
-    let users = await this.bot.apiKraken.userDataFromIds(this.bot.channels.getAllRoomIds())
-    for (let user of users) {
+    const users = await this.bot.apiKraken.userDataFromIds(this.bot.channels.getAllRoomIds())
+    for (const user of users) {
       if (UserIdLoginCache.userNameById.has(parseInt(user._id, 10))
         && UserIdLoginCache.userNameById.get(parseInt(user._id, 10)) !== user.name) {
         // Person must have changed their name
@@ -56,8 +53,8 @@ export class UserIdLoginCache {
   }
 
   async prefetchListOfIds (ids: number[]): Promise<void> {
-    let users = await this.bot.apiKraken.userDataFromIds(ids)
-    for (let user of users) {
+    const users = await this.bot.apiKraken.userDataFromIds(ids)
+    for (const user of users) {
       UserIdLoginCache.userNameById.set(parseInt(user._id, 10), user.name)
       UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), parseInt(user._id, 10))
     }
@@ -65,9 +62,9 @@ export class UserIdLoginCache {
 
   async idToName (id: number): Promise<undefined | string> {
     if (!UserIdLoginCache.userNameById.has(id)) {
-      let users = await this.bot.apiKraken.userDataFromIds([id])
+      const users = await this.bot.apiKraken.userDataFromIds([id])
       if (users.length > 0) {
-        let user = users[0]
+        const user = users[0]
         UserIdLoginCache.userNameById.set(parseInt(user._id, 10), user.name)
         UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), parseInt(user._id, 10))
       } else {
@@ -86,9 +83,9 @@ export class UserIdLoginCache {
       name = name.substr(1)
     }
     if (!UserIdLoginCache.userIdByName.has(name)) {
-      let users = await this.bot.apiKraken.userDataFromLogins([name])
+      const users = await this.bot.apiKraken.userDataFromLogins([name])
       if (users.length > 0) {
-        let user = users[0]
+        const user = users[0]
         UserIdLoginCache.userNameById.set(parseInt(user._id, 10), user.name)
         UserIdLoginCache.userIdByName.set(user.name.toLowerCase(), parseInt(user._id, 10))
       } else {
@@ -100,8 +97,8 @@ export class UserIdLoginCache {
     return UserIdLoginCache.userIdByName.get(name)
   }
 
-  async updateMaps () {
-    let currentIds = Array.from(UserIdLoginCache.userNameById.keys())
+  async updateMaps (): Promise<void> {
+    const currentIds = Array.from(UserIdLoginCache.userNameById.keys())
     UserIdLoginCache.userNameById.clear()
     UserIdLoginCache.userIdByName.clear()
     await this.prefetchListOfIds(currentIds)

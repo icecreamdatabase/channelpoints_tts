@@ -1,13 +1,14 @@
 "use strict"
 import Axios, {Method} from "axios"
 
-import {Bot} from "../Bot";
+import {Bot} from "../Bot"
+import {Logger} from "../helper/Logger"
 
 
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
 export class Helix {
-  private readonly _bot: any
+  private readonly _bot: Bot
 
   constructor (bot: Bot) {
     this._bot = bot
@@ -17,9 +18,9 @@ export class Helix {
     return this._bot
   }
 
-  private async request (pathAppend: string, method: Method = 'GET') : Promise<any>{
+  private async request<T> (pathAppend: string, method: Method = 'GET'): Promise<T> {
     try {
-      let result = await Axios({
+      const result = await Axios({
         url: `https://api.twitch.tv/helix/${pathAppend}`,
         method: method,
         headers: {
@@ -30,7 +31,9 @@ export class Helix {
       })
       return result.data
     } catch (e) {
-      //ignore
+      Logger.warn(e)
+      //throw new Error(e)
+      return e.response.data
     }
   }
 

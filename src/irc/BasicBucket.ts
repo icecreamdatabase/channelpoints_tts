@@ -1,9 +1,9 @@
 "use strict"
 
-import {Logger} from "../helper/Logger";
+import {Logger} from "../helper/Logger"
 
 export class BasicBucket {
-  private static TICKET_RETURN_TIMEOUT: number = 30000
+  private static TICKET_RETURN_TIMEOUT = 30000
   private _usedTickets: number;
   private readonly _limit: number;
 
@@ -12,7 +12,7 @@ export class BasicBucket {
     this._limit = limit || 20
   }
 
-  get ticketsRemaining () {
+  get ticketsRemaining (): number {
     return this._limit - this._usedTickets
   }
 

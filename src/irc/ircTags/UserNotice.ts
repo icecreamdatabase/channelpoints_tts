@@ -10,7 +10,7 @@ export class UserNotice {
 
   }
 
-  public async init () {
+  public async init (): Promise<void> {
 
   }
 

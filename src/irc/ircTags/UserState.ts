@@ -10,7 +10,7 @@ export class UserState {
 
   }
 
-  public async init () {
+  public async init (): Promise<void> {
 
   }
 

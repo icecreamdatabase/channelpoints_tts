@@ -1,8 +1,8 @@
 "use strict"
-import {IncomingMessage} from "http";
+import {IncomingMessage} from "http"
 import * as https from "https"
 import {Logger} from "./Logger"
-import {EventEmitter} from "eventemitter3";
+import {EventEmitter} from "eventemitter3"
 import * as config from "./../config.json"
 
 const DISCORD_REQUEST_TEMPLATE = {
@@ -14,9 +14,12 @@ const DISCORD_REQUEST_TEMPLATE = {
   },
 }
 
+type IWebhookNamesConfig = "bot-log" | "tts-status-log" | "tts-message-log" | "whisper-log"
+type IWebhookNames = IWebhookNamesConfig | "custom"
+
 interface IMsgQueueObj {
   postContent: IMsgQueuePostContent,
-  webhookName: string,
+  webhookName: IWebhookNames | IWebhookNamesConfig,
   id?: string,
   token?: string
 }
@@ -39,12 +42,12 @@ interface IMsgQueueEmbedFooter {
   icon_url: string
 }
 
+// noinspection JSUnusedGlobalSymbols
 export class DiscordLog {
   /**
    * Logs a message in bot-log discord channel.
    * Type: Error
    * Colour: Red
-   * @param message Message to log
    */
   public static error (message: unknown): void {
     MESSAGE_QUEUE.push(DiscordLog.getMessageQueueObj("bot-log", "Error", message, "16009031"))
@@ -55,7 +58,6 @@ export class DiscordLog {
    * Logs a message in bot-log discord channel.
    * Type: Warn
    * Colour: Red
-   * @param message Message to log
    */
   public static warn (message: unknown): void {
     MESSAGE_QUEUE.push(DiscordLog.getMessageQueueObj("bot-log", "Warn", message, "16009031"))
@@ -66,7 +68,6 @@ export class DiscordLog {
    * Logs a message in bot-log discord channel.
    * Type: Info
    * Colour: Yellow
-   * @param message Message to log
    */
   public static info (message: unknown): void {
     MESSAGE_QUEUE.push(DiscordLog.getMessageQueueObj("bot-log", "Info", message, "15653937"))
@@ -77,7 +78,6 @@ export class DiscordLog {
    * Logs a message in bot-log discord channel.
    * Type: Debug
    * Colour: Green
-   * @param message Message to log
    */
   public static debug (message: unknown): void {
     MESSAGE_QUEUE.push(DiscordLog.getMessageQueueObj("bot-log", "Debug", message, "8379242"))
@@ -88,7 +88,6 @@ export class DiscordLog {
    * Logs a message in bot-log discord channel.
    * Type: Trace
    * Colour: Green
-   * @param message Message to log
    */
   public static trace (message: unknown): void {
     MESSAGE_QUEUE.push(DiscordLog.getMessageQueueObj("bot-log", "Trace", message, "8379242"))
@@ -99,9 +98,8 @@ export class DiscordLog {
    * Log a message in a twitch message style.
    * By webhookName
    */
-  public static twitchMessageCustom (webhookName: string, title: string, description: string, timestamp: string, colorHex: string, footerText: string, footerIconUrl: string): void {
+  public static twitchMessageCustom (webhookName: IWebhookNamesConfig, title: string, description: string, timestamp: string, colorHex: string, footerText: string, footerIconUrl: string): void {
     if (Object.prototype.hasOwnProperty.call(config, "discord") && Object.prototype.hasOwnProperty.call(config.discord, webhookName)) {
-      // @ts-ignore TODO: don't ignore this. But idk enough about TypeScript to not ignore it currently.
       this.twitchMessageManual(config.discord[webhookName].id, config.discord[webhookName].token, title, description, timestamp, colorHex, footerText, footerIconUrl)
     }
   }
@@ -135,7 +133,6 @@ export class DiscordLog {
 
   /**
    * Send a Discord webhook object manually.
-   * @param messageQueueObj Discord webhook object
    */
   private static manual (messageQueueObj: IMsgQueueObj): void {
     MESSAGE_QUEUE.push(messageQueueObj)
@@ -144,20 +141,14 @@ export class DiscordLog {
 
   /**
    * Send a basic message to a Discord webhook.
-   * @param webhookName
-   * @param title
-   * @param message
-   * @param decimalColour
    */
-  public static custom (webhookName: string, title: string, message: string, decimalColour: string | number): void {
+  public static custom (webhookName: IWebhookNamesConfig, title: string, message: string, decimalColour: string | number): void {
     MESSAGE_QUEUE.push(DiscordLog.getMessageQueueObj(webhookName, title, message, decimalColour))
     LOG_QUEUE_EMITTER.emit("event")
   }
 
   /**
    * Convert Hex colour string to decimal used by Discord webhooks
-   * @param hex input colour
-   * @returns {number} converted decimal colour
    */
   private static getDecimalFromHexString (hex: string): number {
     hex = hex.toString().replace("#", "")
@@ -168,9 +159,8 @@ export class DiscordLog {
   /**
    * Create basic Discord webhook object.
    * Has not converted webhookname to id + token yet.
-   * @returns {{postContent: {wait: boolean, embeds: [{color: *, description: *, title: *, timestamp: *}]}, webhookName: *}}
    */
-  private static getMessageQueueObj (webhookName: string, title: string, message: unknown, decimalColour: string | number): IMsgQueueObj {
+  private static getMessageQueueObj (webhookName: IWebhookNames, title: string, message: unknown, decimalColour: string | number): IMsgQueueObj {
     return {
       "webhookName": webhookName,
       "postContent": {
@@ -215,14 +205,13 @@ export class DiscordLog {
       }
       if (messageQueueObj.webhookName === "custom"
         || Object.prototype.hasOwnProperty.call(config, "discord") && Object.prototype.hasOwnProperty.call(config.discord, messageQueueObj.webhookName)) {
-        let request = Object.assign({}, DISCORD_REQUEST_TEMPLATE)
+        const request = Object.assign({}, DISCORD_REQUEST_TEMPLATE)
         if (messageQueueObj.webhookName === "custom") {
           request.path += messageQueueObj.id + "/" + messageQueueObj.token
         } else {
-          // @ts-ignore TODO: don't ignore this. But idk enough about TypeScript to not ignore it currently.
           request.path += `${config.discord[messageQueueObj.webhookName].id}/${config.discord[messageQueueObj.webhookName].token}`
         }
-        let req = https.request(request, (res) => {
+        const req = https.request(request, (res) => {
           resolve(res)
         })
         req.on('error', (err) => {
@@ -239,6 +228,7 @@ export class DiscordLog {
   }
 }
 
+//TODO move this into static variables / functions. No clue how to do the .on('event', ...)
 const MESSAGE_QUEUE: IMsgQueueObj[] = []
 const LOG_QUEUE_EMITTER = new EventEmitter()
 LOG_QUEUE_EMITTER.on('event', DiscordLog.queueRunner)

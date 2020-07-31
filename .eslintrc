@@ -19,7 +19,7 @@
   "rules": {
     "block-spacing": "error",
     "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
-    "camelcase": [1],
+    //"camelcase": [1], //disabled because twitch apis love giving none camelcase object keys
     "comma-spacing": "error",
     "comma-style": ["error", "last"],
     "curly": "error",

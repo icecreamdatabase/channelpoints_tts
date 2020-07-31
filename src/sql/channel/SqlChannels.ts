@@ -1,9 +1,7 @@
 "use strict"
-import util from "util"
-import {Logger} from "../../helper/Logger";
 import Sql from "./../Sql"
-import {RowDataPacket, FieldPacket} from "mysql2";
-import {Channel} from "../../channel/Channel";
+import {RowDataPacket, FieldPacket} from "mysql2"
+import {Channel} from "../../channel/Channel"
 
 export interface ISqlChannel {
   roomId: number,
@@ -15,7 +13,7 @@ export interface ISqlChannel {
 
 export class SqlChannels {
   static async getChannels (): Promise<ISqlChannel[]> {
-    const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`
         SELECT roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown
         FROM channels
         WHERE enabled = b'1';`)
@@ -41,14 +39,14 @@ export class SqlChannels {
    * @return {boolean} Does the channel still exists in the db
    */
   static async updateChannelFromDb (channel: Channel): Promise<boolean> {
-    const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`
         SELECT roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown
         FROM channels
         WHERE enabled = b'1'
           AND roomId = ?;`, [channel.roomId])
 
     if (rows.length > 0) {
-      let row = rows[0]
+      const row = rows[0]
       channel.channelName = row.channelName
       channel.isTwitchPartner = row.isTwitchPartner
       channel.maxMessageLength = row.maxMessageLength

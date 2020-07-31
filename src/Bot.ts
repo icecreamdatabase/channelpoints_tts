@@ -9,7 +9,7 @@ import {SqlGlobalUserBlacklist} from "./sql/main/SqlGlobalUserBlacklist"
 import {Channels} from "./channel/Channels"
 import {Irc} from "./irc/Irc"
 import {PubSub} from "./pubsub/PubSub"
-import {Logger} from "./helper/Logger";
+import {Logger} from "./helper/Logger"
 
 const UPDATE_GLOBAL_USER_BLACKLIST_INTERVAL = 120000 // 2 minutes
 
@@ -83,25 +83,25 @@ export class Bot extends EventEmitter {
     return this._channels
   }
 
-  public get irc () {
+  public get irc (): Irc {
     if (this._irc === undefined) {
       throw new Error("Bot: irc is undefined!")
     }
     return this._irc
   }
 
-  public get pubSub () {
+  public get pubSub (): PubSub {
     if (this._pubSub === undefined) {
       throw new Error("Bot: pubSub is undefined!")
     }
     return this._pubSub
   }
 
-  public get userId () {
+  public get userId (): number {
     return this.authentication.userId
   }
 
-  public get userName () {
+  public get userName (): string {
     return this.authentication.userName
   }
 
@@ -109,12 +109,12 @@ export class Bot extends EventEmitter {
     return this._globalUserBlacklist.has(userId)
   }
 
-  public async addUserIdToBlacklist (userId: number | string) {
+  public async addUserIdToBlacklist (userId: number): Promise<void> {
     SqlGlobalUserBlacklist.addUserId(userId)
     await this.updateGlobalUserBlacklist()
   }
 
-  public async updateGlobalUserBlacklist () {
+  public async updateGlobalUserBlacklist (): Promise<void> {
     (await SqlGlobalUserBlacklist.getUserIds()).forEach(item => this._globalUserBlacklist.add(item))
   }
 }

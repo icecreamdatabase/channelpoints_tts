@@ -2,11 +2,11 @@
 import Axios from "axios"
 import util from "util"
 
-import {Bot} from "../Bot";
+import {Bot} from "../Bot"
 import {IBotData, SqlBotData} from "../sql/main/SqlBotData"
-import {Logger} from "../helper/Logger";
+import {Logger} from "../helper/Logger"
 
-import {TimeConversion} from "../Enums";
+import {TimeConversion} from "../Enums"
 
 export class Authentication {
   private readonly _validateRefreshOffset = 120000 // 2 minutes
@@ -25,7 +25,7 @@ export class Authentication {
     this.bot.on(this.bot.eventNameRefresh, this.update.bind(this))
   }
 
-  public async init () {
+  public async init (): Promise<void> {
     await this.update()
     // if this._authData is not {} --- update() will set it to {} if something failed. This should never happen!
     if (this.accessToken) {
@@ -103,7 +103,7 @@ export class Authentication {
         headers: {
           'Authorization': `OAuth ${this.accessToken}`
         }
-      });
+      })
       //Logger.debug(`^^^ Validated token for: ${this.userId} (${this.userName})`)
       if (result.data["expires_in"] < (this._validateInterval + this._validateRefreshOffset) / TimeConversion.SecondsToMilliseconds) {
         await this.refresh()
@@ -136,7 +136,7 @@ export class Authentication {
           'grant_type': 'refresh_token',
           'refresh_token': this.refreshToken
         }
-      });
+      })
       if (Object.prototype.hasOwnProperty.call(result.data, "access_token")) {
         await SqlBotData.set("access_token", result.data["access_token"])
         await this.update()

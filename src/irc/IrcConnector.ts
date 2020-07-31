@@ -1,5 +1,7 @@
 "use strict"
 import {Bot} from "../Bot"
+import {Logger} from "../helper/Logger"
+import {IrcWsCmds, UserLevels} from "../Enums"
 import {
   IWsDataAuth,
   IWsDataData,
@@ -8,18 +10,12 @@ import {
   IWsDataReceive,
   IWsDataRequestIrcStates
 } from "./IIrcConnector"
+
 import WebSocket from "ws"
 import EventEmitter from "eventemitter3"
+import Assert from "assert"
 
 import config from "../config.json"
-
-const Assert = require('assert')
-//CLASSES
-const Logger = require('../helper/Logger')
-const DiscordLog = require('../helper/DiscordLog')
-//ENUMS
-const UserLevels = require('../../ENUMS/UserLevels.js')
-const IrcWsCmds = require('../../ENUMS/IrcWsCmds')
 
 const AUTH_UPDATE_INTERVAL_CHECK = 15000 // 15 seconds
 

@@ -1,9 +1,9 @@
 "use strict"
 import Axios, {Method} from "axios"
 
-import {Bot} from "../Bot";
-import {Logger} from "../helper/Logger";
-import {TimeConversion} from "../Enums";
+import {Bot} from "../Bot"
+import {Logger} from "../helper/Logger"
+import {TimeConversion} from "../Enums"
 
 import {
   IKrakenError,
@@ -36,7 +36,7 @@ export class Kraken {
 
   private async request<T> (pathAppend: string, method: Method = 'GET'): Promise<T/* | IKrakenError*/> {
     try {
-      let result = await Axios({
+      const result = await Axios({
         url: `https://api.twitch.tv/kraken/${pathAppend}`,
         method: method,
         headers: {
@@ -72,7 +72,7 @@ export class Kraken {
    * receive login name from a single userid
    */
   public async loginFromUserId (userId: number | string): Promise<string> {
-    let response = await this.userInfo(userId)
+    const response = await this.userInfo(userId)
     if (Object.hasOwnProperty.call(response, 'login')) {
       return response.login
     } else {
@@ -85,7 +85,7 @@ export class Kraken {
    * Returns the userId from a single login
    */
   public async userIdFromLogin (username: string): Promise<number | string> {
-    let response = await this.userInfosFromLogins([username])
+    const response = await this.userInfosFromLogins([username])
 
     if (response._total === 0 || response.users.length === 0) {
       return '-1'
@@ -101,10 +101,10 @@ export class Kraken {
    * automatically handles if more than 100 usernames are requested
    */
   public async userDataFromIds (userIds: number[] | string[]): Promise<IKrakenUser[]> {
-    let chunkSize = 100
+    const chunkSize = 100
     let users: IKrakenUser[] = []
 
-    let requestChunks: (number[] | string[])[] = []
+    const requestChunks: (number[] | string[])[] = []
 
     for (let i = 0; i < userIds.length; i += chunkSize) {
       requestChunks.push(userIds.slice(i, i + chunkSize))
@@ -112,8 +112,8 @@ export class Kraken {
 
     //let requestChunks = [].concat.apply([], userIds.map((elem: string, i: number) => i % chunkSize ? [] : [userIds.slice(i, i + chunkSize)]))
 
-    for (let chunk of requestChunks) {
-      let responseChunk = await this.userInfosFromIds(chunk)
+    for (const chunk of requestChunks) {
+      const responseChunk = await this.userInfosFromIds(chunk)
       if (responseChunk && responseChunk["_total"] > 0) {
         users = users.concat(responseChunk["users"])
       }
@@ -128,10 +128,10 @@ export class Kraken {
    * automatically handles if more than 100 usernames are requested
    */
   public async userDataFromLogins (usernames: string[]): Promise<IKrakenUser[]> {
-    let chunkSize = 100
+    const chunkSize = 100
     let users: IKrakenUser[] = []
 
-    let requestChunks: string[][] = []
+    const requestChunks: string[][] = []
 
     for (let i = 0; i < usernames.length; i += chunkSize) {
       requestChunks.push(usernames.slice(i, i + chunkSize))
@@ -139,8 +139,8 @@ export class Kraken {
 
     //let requestChunks = [].concat.apply([], usernames.map((elem, i) => i % chunkSize ? [] : [usernames.slice(i, i + chunkSize)]))
 
-    for (let chunk of requestChunks) {
-      let responseChunk = await this.userInfosFromLogins(chunk)
+    for (const chunk of requestChunks) {
+      const responseChunk = await this.userInfosFromLogins(chunk)
       if (responseChunk._total > 0) {
         users = users.concat(responseChunk.users)
       }
@@ -197,10 +197,10 @@ export class Kraken {
    * Get Channel objects for an array of roomIds
    */
   public async channelInfosFromIds (roomIds: number[] | string[]): Promise<IKrakenChannel[]> {
-    let chunkSize = 100
+    const chunkSize = 100
     let channels: IKrakenChannel[] = []
 
-    let requestChunks: (number[] | string[])[] = []
+    const requestChunks: (number[] | string[])[] = []
 
     for (let i = 0; i < roomIds.length; i += chunkSize) {
       requestChunks.push(roomIds.slice(i, i + chunkSize))
@@ -208,8 +208,8 @@ export class Kraken {
 
     //let requestChunks = [].concat.apply([], roomIds.map((elem, i) => i % chunkSize ? [] : [roomIds.slice(i, i + chunkSize)]))
 
-    for (let chunk of requestChunks) {
-      let responseChunk = await this.channelInfos(chunk)
+    for (const chunk of requestChunks) {
+      const responseChunk = await this.channelInfos(chunk)
       if (responseChunk["_total"] > 0) {
         channels = channels.concat(responseChunk["channels"])
       }
@@ -218,9 +218,9 @@ export class Kraken {
   }
 
   public async followTime (userId: number | string, roomId: number | string): Promise<{ followDate: Date | undefined, followTimeMs: number, followTimeS: number, followtimeMin: number, followtimeH: number, followtimeD: number, followtimeMon: number, followtimeY: number }> {
-    let response = await this.request<IKrakenFollowsChannel>('users/' + userId + '/follows/channels/' + roomId).catch(e => Logger.log(e))
+    const response = await this.request<IKrakenFollowsChannel>('users/' + userId + '/follows/channels/' + roomId).catch(e => Logger.log(e))
     Logger.log(response)
-    let returnObj = {
+    const returnObj = {
       followDate: new Date(0),
       followTimeMs: -1,
       followTimeS: -1,
@@ -247,12 +247,12 @@ export class Kraken {
    * Returns the userstate of a userId inside a room from the api
    */
   async userStatus (userId: number | string, roomId: number | string): Promise<{ isBroadcaster: boolean, isMod: boolean, isVip: boolean, isAny: boolean, isSubscriber: boolean, isKnownBot: boolean, isVerifiedBot: boolean }> {
-    let userData = await this.userInChannelInfo(userId, roomId)
+    const userData = await this.userInChannelInfo(userId, roomId)
     let isBroadcaster = false
     let isMod = false
     let isVip = false
     let isSubscriber = false
-    for (let badge of userData.Badges) {
+    for (const badge of userData.Badges) {
       if (badge.id === "broadcaster") {
         isBroadcaster = true
       }
@@ -266,9 +266,9 @@ export class Kraken {
         isSubscriber = true
       }
     }
-    let isAny = isBroadcaster || isMod || isVip
-    let isKnownBot = userData.is_known_bot || false
-    let isVerifiedBot = userData.is_verified_bot || false
+    const isAny = isBroadcaster || isMod || isVip
+    const isKnownBot = userData.is_known_bot || false
+    const isVerifiedBot = userData.is_verified_bot || false
 
     return {isBroadcaster, isMod, isVip, isAny, isSubscriber, isKnownBot, isVerifiedBot}
   }

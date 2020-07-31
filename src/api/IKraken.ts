@@ -39,8 +39,7 @@ export interface IKrakenUsersChat {
 }
 
 /** kraken/users/XXXX/chat/channels/YYYY */
-export interface IKrakenUsersChatChannel extends IKrakenUsersChat {
-}
+export type IKrakenUsersChatChannel = IKrakenUsersChat
 
 /** kraken/channels/XXXX */
 export interface IKrakenChannel {

@@ -10,7 +10,7 @@ export class ClearChat {
 
   }
 
-  public async init () {
+  public async init (): Promise<void> {
 
   }
 

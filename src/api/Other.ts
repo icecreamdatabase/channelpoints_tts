@@ -1,17 +1,31 @@
 "use strict"
 import Axios from "axios"
-import {Bot} from "../Bot";
+import {Bot} from "../Bot"
 
 //TODO: use custom axois instances https://www.npmjs.com/package/axios
 
-const SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
+interface IChatters {
+  _links: Record<string, unknown>,
+  chatter_count: number,
+  chatters: {
+    broadcaster: string[],
+    vips: string[],
+    moderators: string[],
+    staff: string[],
+    admins: string[],
+    global_mods: string[],
+    viewers: string[]
+  }
+}
+
 export class Other {
+  private static readonly SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
   private readonly _bot: Bot;
 
   public constructor (bot: Bot) {
     this._bot = bot
 
-    setInterval(() => Other.supinicApiPing(this.bot.authentication.supinicApiUser, this.bot.authentication.supinicApiKey), SUPINIC_API_PING_INTERVAL)
+    setInterval(() => Other.supinicApiPing(this.bot.authentication.supinicApiUser, this.bot.authentication.supinicApiKey), Other.SUPINIC_API_PING_INTERVAL)
   }
 
   private get bot (): Bot {
@@ -27,9 +41,12 @@ export class Other {
     if (channelName.charAt(0) === '#') {
       channelName = channelName.substring(1)
     }
-    let chattersObj = (await Axios(`https://tmi.twitch.tv/group/user/${channelName}/chatters`)).data
+    const chattersObj: IChatters = (await Axios(`https://tmi.twitch.tv/group/user/${channelName}/chatters`)).data
     if (Object.prototype.hasOwnProperty.call(chattersObj, "chatters")) {
-      return [].concat.apply([], Object.values(chattersObj.chatters))
+      const chatters: string[] = []
+      chatters.concat(...Object.values(chattersObj.chatters))
+      return chatters
+      //return [].concat.apply([], Object.values(chattersObj.chatters))
     }
     return []
   }
@@ -41,7 +58,7 @@ export class Other {
    * @returns {Promise<boolean>}
    */
   public static async isUserInChannel (loginToCheck: string, channelName: string): Promise<boolean> {
-    let allChatters = await this.getAllUsersInChannel(channelName)
+    const allChatters = await this.getAllUsersInChannel(channelName)
     return this.stringEntryInArray(allChatters, loginToCheck)
   }
 
@@ -53,7 +70,7 @@ export class Other {
    */
   public static stringEntryInArray (array: string[], entryToCheck: string): boolean {
     if (array.length > 0) {
-      for (let entry of array) {
+      for (const entry of array) {
         if (entry.toLowerCase() === entryToCheck.toLowerCase()) {
           return true
         }

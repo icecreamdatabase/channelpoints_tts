@@ -1,9 +1,9 @@
 "use strict"
 
-import {ISqlChannel, SqlChannels} from "../sql/channel/SqlChannels";
-import {Bot} from "../Bot";
-import {ApiOther} from "../api/Api";
-import {UserLevels} from "../Enums";
+import {ISqlChannel, SqlChannels} from "../sql/channel/SqlChannels"
+import {Bot} from "../Bot"
+import {ApiOther} from "../api/Api"
+import {UserLevels} from "../Enums"
 
 export class Channel {
   private readonly _bot: Bot;
@@ -20,7 +20,7 @@ export class Channel {
 
 
   public constructor (bot: Bot, roomId: number, channelName: string, isTwitchPartner: boolean, maxMessageLength: number, minCooldown: number) {
-    this._bot = bot;
+    this._bot = bot
     this._roomId = roomId
     this._channelName = channelName
     this._isTwitchPartner = isTwitchPartner
