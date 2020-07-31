@@ -11,19 +11,24 @@ import {IrcConnector} from "./IrcConnector"
 
 export class Irc {
   private readonly _bot: Bot
-  private readonly _ircConnector: IrcConnector = new IrcConnector(this.bot)
-  private readonly _clearChat: ClearChat = new ClearChat(this.bot)
-  private readonly _clearMsg: ClearMsg = new ClearMsg(this.bot)
-  private readonly _privMsg: PrivMsg = new PrivMsg(this.bot)
-  private readonly _userNotice: UserNotice = new UserNotice(this.bot)
-  private readonly _userState: UserState = new UserState(this.bot)
+  private readonly _ircConnector: IrcConnector
+  private readonly _clearChat: ClearChat
+  private readonly _clearMsg: ClearMsg
+  private readonly _privMsg: PrivMsg
+  private readonly _userNotice: UserNotice
+  private readonly _userState: UserState
 
   private _rateLimitUser: ChatLimit = ChatLimit.NORMAL
   private _rateLimitModerator: ChatLimit = ChatLimit.NORMAL_MOD
 
   constructor (bot: Bot) {
     this._bot = bot
-
+    this._ircConnector = new IrcConnector(this.bot)
+    this._clearChat = new ClearChat(this.bot)
+    this._clearMsg = new ClearMsg(this.bot)
+    this._privMsg = new PrivMsg(this.bot)
+    this._userNotice = new UserNotice(this.bot)
+    this._userState = new UserState(this.bot)
   }
 
   public async init (): Promise<void> {

@@ -11,28 +11,37 @@ import {Irc} from "./irc/Irc"
 import {PubSub} from "./pubsub/PubSub"
 import {Logger} from "./helper/Logger"
 
-const UPDATE_GLOBAL_USER_BLACKLIST_INTERVAL = 120000 // 2 minutes
 
 export class Bot extends EventEmitter {
-  private readonly initErrorRestartDelay = 15000
+  private static readonly initErrorRestartDelay = 15000 // 15 seconds
+  private static readonly UPDATE_GLOBAL_USER_BLACKLIST_INTERVAL = 120000 // 2 minutes
   public readonly eventNameRefresh = 'refresh'
   public readonly eventNameBotReady = 'ready'
-  /* The order of these matter! */
-  /* Auth needs to be first! */
-  public authentication: Authentication = new Authentication(this);
-  private _userIdLoginCache: UserIdLoginCache = new UserIdLoginCache(this);
-  private _apiHelix: ApiHelix = new ApiHelix(this)
-  private _apiKraken: ApiKraken = new ApiKraken(this)
-  private _apiOther: ApiOther = new ApiOther(this)
-  private _channels: Channels = new Channels(this)
-  private _irc: Irc = new Irc(this);
-  private _pubSub: PubSub = new PubSub(this);
-  private readonly _globalUserBlacklist: Set<number> = new Set<number>();
+  public authentication: Authentication
+  private readonly _userIdLoginCache: UserIdLoginCache
+  private readonly _apiHelix: ApiHelix
+  private readonly _apiKraken: ApiKraken
+  private readonly _apiOther: ApiOther
+  private readonly _channels: Channels
+  private readonly _irc: Irc
+  private readonly _pubSub: PubSub
+  private readonly _globalUserBlacklist: Set<number> = new Set<number>()
 
   constructor () {
     super()
 
-    setInterval(this.updateGlobalUserBlacklist.bind(this), UPDATE_GLOBAL_USER_BLACKLIST_INTERVAL)
+    /* The order of these matter! */
+    /* Auth needs to be first! */
+    this.authentication = new Authentication(this)
+    this._userIdLoginCache = new UserIdLoginCache(this)
+    this._apiHelix = new ApiHelix(this)
+    this._apiKraken = new ApiKraken(this)
+    this._apiOther = new ApiOther(this)
+    this._channels = new Channels(this)
+    this._irc = new Irc(this)
+    this._pubSub = new PubSub(this)
+
+    setInterval(this.updateGlobalUserBlacklist.bind(this), Bot.UPDATE_GLOBAL_USER_BLACKLIST_INTERVAL)
     // noinspection JSIgnoredPromiseFromCall
     this.updateGlobalUserBlacklist()
 
@@ -58,8 +67,8 @@ export class Bot extends EventEmitter {
       Logger.info("Bot fully started.")
       this.emit(this.eventNameBotReady)
     } catch (e) {
-      Logger.error(`Error during bot startup.:\n${e}\n\n\nTrying again in ${this.initErrorRestartDelay} seconds`)
-      setTimeout(() => process.abort(), this.initErrorRestartDelay)
+      Logger.error(`Error during bot startup.:\n${e}\n\n\nTrying again in ${Bot.initErrorRestartDelay} seconds`)
+      setTimeout(() => process.abort(), Bot.initErrorRestartDelay)
     }
   }
 

@@ -32,8 +32,6 @@ export class IrcConnector extends EventEmitter {
     this.on('queue', this.checkQueue.bind(this))
 
     setInterval(this.sendAuthData.bind(this), AUTH_UPDATE_INTERVAL_CHECK)
-
-    //this.connect()
   }
 
   public async init (): Promise<void> {
