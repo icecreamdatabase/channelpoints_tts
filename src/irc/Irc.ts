@@ -34,6 +34,11 @@ export class Irc {
   public async init (): Promise<void> {
     await this.updateBotRatelimits()
     await this.ircConnector.init()
+    await this.clearChat.init()
+    await this.clearMsg.init()
+    await this.privMsg.init()
+    await this.userNotice.init()
+    await this.userstate.init()
   }
 
   private get bot (): Bot {
