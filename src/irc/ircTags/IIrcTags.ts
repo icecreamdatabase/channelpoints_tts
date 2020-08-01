@@ -39,9 +39,12 @@ export interface IUserStateTags {
   "color": true | string,
   "display-name": string,
   "emote-sets": true | string,
-  "mod": boolean, // deprecated
-  "subscriber": boolean, // deprecated
-  "user-type": "empty" | "mod" | "global_mod" | "admin" | "staff" // deprecated
+  /** @deprecated */
+  "mod": boolean,
+  /** @deprecated */
+  "subscriber": boolean,
+  /** @deprecated */
+  "user-type": "empty" | "mod" | "global_mod" | "admin" | "staff"
 }
 
 export interface IUserState extends IIrcBase {
@@ -49,5 +52,4 @@ export interface IUserState extends IIrcBase {
   "command": "USERSTATE",
   "trailing": ""
 }
-
 
