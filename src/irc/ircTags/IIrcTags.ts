@@ -1,7 +1,7 @@
 "use strict"
 
 export interface IIrcBase {
-  "tags": IClearChatTags | IUserStateTags,
+  "tags": IClearChatTags | IClearMsgTags | IUserStateTags,
   "command": "CLEARCHAT" | "CLEARMSG" | "GLOBALUSERSTATE" | "PRIVMSG" | "ROOMSTATE" | "USERNOTICE" | "USERSTATE",
   "prefix": "tmi.twitch.tv",
   "param": string, // #roomName
@@ -19,6 +19,18 @@ export interface IClearChat extends IIrcBase {
   "tags": IClearChatTags,
   "command": "CLEARCHAT"
   "trailing": string // Timed out user
+}
+
+export interface IClearMsgTags {
+  "room-id": string,
+  "target-msg-id": string,
+  "tmi-sent-ts": string //TODO make this date somehow
+}
+
+export interface IClearMsg extends IIrcBase {
+  "tags": IClearMsgTags,
+  "command": "CLEARMSG"
+  "trailing": string // Message timed out
 }
 
 export interface IUserStateTags {
