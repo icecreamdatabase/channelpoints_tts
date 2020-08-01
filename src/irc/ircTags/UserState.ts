@@ -21,16 +21,14 @@ export class UserState {
 
   /**
    * Method from bot.TwitchIRCconnection event emitter 'USERSTATE'.
-   * @param obj raw object from TwitchIRCconnection registerEvents
-   * @returns {Promise<boolean>} Was action taken
    */
-  async onUserState (obj: IUserState): Promise<boolean> {
+  async onUserState (userState: IUserState): Promise<boolean> {
     // update own botStatus in a specific channel
-    const roomId = await this.bot.userIdLoginCache.nameToId(obj.param.substr(1))
+    const roomId = await this.bot.userIdLoginCache.nameToId(userState.param.substr(1))
     if (roomId && this.bot.channels.hasChannel(roomId)) {
       const channel = this.bot.channels.getChannel(roomId) // do we really need both the hasChannel check and the getChanel handling?
       if (channel) {
-        channel.botStatus = UserState.getUserLevel(obj.tags)
+        channel.botStatus = UserState.getUserLevel(userState.tags)
       }
     }
 
