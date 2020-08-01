@@ -55,5 +55,11 @@ export class SqlChannels {
     }
     return false
   }
+
+  static async dropChannel (roomId: number | string): Promise<void> {
+    await Sql.query(`DELETE
+                     FROM channels
+                     WHERE roomId = ?; `, [roomId])
+  }
 }
 

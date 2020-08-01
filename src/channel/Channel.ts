@@ -53,11 +53,15 @@ export class Channel {
   }
 
   private async refresh () {
+    // TODO: Not sure if this is a good idea if we got a billion channels. One Sql request per channel? Rather do this in Channels
     const channelStillExists = await SqlChannels.updateChannelFromDb(this)
     if (!channelStillExists) {
-      //TODO: delete self somehow?!?
-      this.bot.channels.deleteChannel(this) //is this really a good idea?
+      await this.drop()
     }
+  }
+
+  public async drop (): Promise<void> {
+    await this.bot.channels.dropChannel(this) //is this really a good idea?
   }
 
   private get bot (): Bot {

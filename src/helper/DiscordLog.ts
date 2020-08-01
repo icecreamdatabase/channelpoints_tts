@@ -150,7 +150,7 @@ export class DiscordLog {
   /**
    * Convert Hex colour string to decimal used by Discord webhooks
    */
-  private static getDecimalFromHexString (hex: string): number {
+  static getDecimalFromHexString (hex: string): number {
     hex = hex.toString().replace("#", "")
     return parseInt(hex, 16)
   }

@@ -72,18 +72,23 @@ export class Channels extends EventEmitter {
         throw new Error(`Channel exists but can't be fetched!?: \n${util.inspect(newChannel)}`)
       }
     } else {
-      this.addChannel(newChannel)
+      this.addChannelToMap(newChannel)
     }
   }
 
-  private addChannel (channel: Channel): void {
+  private addChannelToMap (channel: Channel): void {
     this._sqlChannels.set(channel.roomId, channel)
     this.emit(Channels.eventNameJoin, channel.channelName)
   }
 
-  public deleteChannel (channel: Channel): void {
+  public deleteChannelFromMap (channel: Channel): void {
     this._sqlChannels.delete(channel.roomId)
     this.emit(Channels.eventNamePart, channel.channelName)
+  }
+
+  public async dropChannel (channel: Channel): Promise<void> {
+    this.deleteChannelFromMap(channel)
+    await SqlChannels.dropChannel(channel.roomId)
   }
 }
 

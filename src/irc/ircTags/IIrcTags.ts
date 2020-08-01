@@ -1,6 +1,26 @@
 "use strict"
 
-// @badge-info=;badges=moderator/1,bits/1000;color=;display-name=ChannelPoints_TTS;emote-sets=0,296564,329101,342450,1082665,1230890,1381696,300374282,300979940,301391271,472873131,488737509,537206155,966632025;mod=1;subscriber=0;user-type=mod :tmi.twitch.tv USERSTATE #icdb
+export interface IIrcBase {
+  "tags": IClearChatTags | IUserStateTags,
+  "command": "CLEARCHAT" | "CLEARMSG" | "GLOBALUSERSTATE" | "PRIVMSG" | "ROOMSTATE" | "USERNOTICE" | "USERSTATE",
+  "prefix": "tmi.twitch.tv",
+  "param": string, // #roomName
+  "trailing": string
+}
+
+export interface IClearChatTags {
+  "ban-duration"?: number, // undefined = perm ban
+  "room-id": string,
+  "target-user-id": string,
+  "tmi-sent-ts": string //TODO make this date somehow
+}
+
+export interface IClearChat extends IIrcBase {
+  "tags": IClearChatTags,
+  "command": "CLEARCHAT"
+  "trailing": string // Timed out user
+}
+
 export interface IUserStateTags {
   "badge-info": true | string,
   "badges": true | string, //"moderator/1,bits/1000",
@@ -12,13 +32,10 @@ export interface IUserStateTags {
   "user-type": "empty" | "mod" | "global_mod" | "admin" | "staff" // deprecated
 }
 
-export interface IUserState {
+export interface IUserState extends IIrcBase {
   "tags": IUserStateTags,
   "command": "USERSTATE",
-  "prefix": "tmi.twitch.tv",
-  "param": string,
   "trailing": ""
 }
 
 
-// @emote-only=0;followers-only=-1;r9k=0;rituals=0;room-id=38949074;slow=0;subs-only=0 :tmi.twitch.tv ROOMSTATE #icdb
