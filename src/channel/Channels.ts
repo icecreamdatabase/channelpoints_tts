@@ -3,15 +3,20 @@ import util from "util"
 import {Channel} from "./Channel"
 import {SqlChannels} from "../sql/channel/SqlChannels"
 import {Bot} from "../Bot"
+import EventEmitter from "eventemitter3"
 
-export class Channels {
+export class Channels extends EventEmitter {
+  public static readonly eventNameUpdate = "update"
+  public static readonly eventNameJoin = "join"
+  public static readonly eventNamePart = "part"
+  public static readonly eventNameNameChange = "nameChange"
   private readonly channelRefreshInterval: number = 30000 //30 seconds
   private readonly _bot: Bot;
   private readonly _sqlChannels: Map<number, Channel> = new Map<number, Channel>()
 
   constructor (bot: Bot) {
+    super()
     this._bot = bot
-    this.updateFromDb().then()
     setInterval(() => this.updateFromDb(), this.channelRefreshInterval)
     this.bot.on(this.bot.eventNameRefresh, () => this.updateFromDb())
   }
@@ -29,6 +34,7 @@ export class Channels {
     for (const channel of channelArr) {
       this.addOrUpdateChannel(Channel.FromISqlChannel(this.bot, channel))
     }
+    this.emit(Channels.eventNameUpdate)
   }
 
   public hasChannel (roomId: number): boolean {
@@ -47,14 +53,21 @@ export class Channels {
     return Array.from(this._sqlChannels.keys())
   }
 
+  public getAllChannelNames (): string[] {
+    return Array.from(this._sqlChannels.values()).map(value => value.channelName)
+  }
+
   public addOrUpdateChannel (newChannel: Channel): void {
     if (this._sqlChannels.has(newChannel.roomId)) {
-      const channel = this.getChannel(newChannel.roomId)
-      if (channel) {
-        channel.channelName = newChannel.channelName
-        channel.isTwitchPartner = newChannel.isTwitchPartner
-        channel.maxMessageLength = newChannel.maxMessageLength
-        channel.minCooldown = newChannel.minCooldown
+      const existingChannel = this.getChannel(newChannel.roomId)
+      if (existingChannel) {
+        if (existingChannel.channelName !== newChannel.channelName) {
+          this.emit(Channels.eventNameNameChange, existingChannel.channelName, newChannel.channelName)
+          existingChannel.channelName = newChannel.channelName
+        }
+        existingChannel.isTwitchPartner = newChannel.isTwitchPartner
+        existingChannel.maxMessageLength = newChannel.maxMessageLength
+        existingChannel.minCooldown = newChannel.minCooldown
       } else {
         throw new Error(`Channel exists but can't be fetched!?: \n${util.inspect(newChannel)}`)
       }
@@ -65,14 +78,12 @@ export class Channels {
 
   private addChannel (channel: Channel): void {
     this._sqlChannels.set(channel.roomId, channel)
-
-    //TODO: trigger irc join
+    this.emit(Channels.eventNameJoin, channel.channelName)
   }
 
-  public deleteChannel (sqlChannel: Channel): void {
-    this._sqlChannels.delete(sqlChannel.roomId)
-
-    //TODO: trigger irc leave
+  public deleteChannel (channel: Channel): void {
+    this._sqlChannels.delete(channel.roomId)
+    this.emit(Channels.eventNamePart, channel.channelName)
   }
 }
 

@@ -16,6 +16,7 @@ import EventEmitter from "eventemitter3"
 import Assert from "assert"
 
 import config from "../config.json"
+import {Channels} from "../channel/Channels"
 
 const AUTH_UPDATE_INTERVAL_CHECK = 15000 // 15 seconds
 
@@ -36,6 +37,13 @@ export class IrcConnector extends EventEmitter {
 
   public async init (): Promise<void> {
     this.connect()
+    this.bot.channels.on(Channels.eventNameUpdate, () => this.setChannel(this.bot.channels.getAllChannelNames()))
+    this.bot.channels.on(Channels.eventNameJoin, (channelName: string) => this.joinChannel(channelName))
+    this.bot.channels.on(Channels.eventNamePart, (channelName: string) => this.leaveChannel(channelName))
+    this.bot.channels.on(Channels.eventNameNameChange, (oldChannelName: string, newChannelName: string) => {
+      this.leaveChannel(oldChannelName)
+      this.joinChannel(newChannelName)
+    })
   }
 
   private get bot (): Bot {
@@ -163,10 +171,11 @@ export class IrcConnector extends EventEmitter {
       this._lastSentAuthObj = undefined
       this.sendAuthData().then(() =>
         //Resend all channels after a reconnect. The chance of the TwitchIrcConnector having restarted is very high.
-        this.bot.channels.updateFromDb().then(() =>
-          this.requestIrcStates().then(() =>
+        this.bot.channels.updateFromDb().then(async () => {
+            await this.setChannel(this.bot.channels.getAllChannelNames())
+            await this.requestIrcStates()
             Logger.info(`### WS (re)connect sending channels done: ${this.bot.userId} (${this.bot.userName})`)
-          )
+          }
         )
       )
     })

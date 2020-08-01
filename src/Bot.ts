@@ -56,13 +56,9 @@ export class Bot extends EventEmitter {
       // E.g.: auth is needed in later ones. irc is needed in order to join channels
       await this.authentication.init()
 
-      const promiseUserIdLoginCache = this.userIdLoginCache.init()
-      const promiseIrc = this.irc.init()
-      //Doesn't matter which of the two are finished first. But both have to finish before channels can run it's init.
-      await Promise.all([promiseUserIdLoginCache, promiseIrc])
-
       await this.channels.init()
-
+      await this.userIdLoginCache.init()
+      await this.irc.init()
 
       Logger.info("Bot fully started.")
       this.emit(this.eventNameBotReady)
