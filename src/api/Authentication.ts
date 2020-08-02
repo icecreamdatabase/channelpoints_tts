@@ -95,6 +95,20 @@ export class Authentication {
     return this._botData.supinicApiKey
   }
 
+  public get botOwners (): number[] {
+    if (this._botData.botOwnersParsed === undefined) {
+      throw new Error("Auth: botOwners is undefined!")
+    }
+    return this._botData.botOwnersParsed
+  }
+
+  public get botAdmins (): number[] {
+    if (this._botData.botAdminsParsed === undefined) {
+      throw new Error("Auth: botAdmins is undefined!")
+    }
+    return this._botData.botAdminsParsed
+  }
+
   private async validate () {
     try {
       const result = await Axios({
@@ -168,6 +182,8 @@ export class Authentication {
 
   private async update () {
     this._botData = await SqlBotData.getBotData()
+    this._botData.botOwnersParsed = this._botData.botOwners?.split(",").map(x => parseInt(x))
+    this._botData.botAdminsParsed = this._botData.botAdmins?.split(",").map(x => parseInt(x))
   }
 }
 

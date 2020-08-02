@@ -43,10 +43,7 @@ export class Other {
     }
     const chattersObj: IChatters = (await Axios(`https://tmi.twitch.tv/group/user/${channelName}/chatters`)).data
     if (Object.prototype.hasOwnProperty.call(chattersObj, "chatters")) {
-      const chatters: string[] = []
-      chatters.concat(...Object.values(chattersObj.chatters))
-      return chatters
-      //return [].concat.apply([], Object.values(chattersObj.chatters))
+      return (<string[]>[]).concat(...Object.values(chattersObj.chatters))
     }
     return []
   }

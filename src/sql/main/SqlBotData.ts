@@ -1,6 +1,6 @@
 "use strict"
 import Sql from "./../Sql"
-import {RowDataPacket, FieldPacket} from "mysql2";
+import {FieldPacket, RowDataPacket} from "mysql2";
 
 export interface IBotData {
   userId?: number,
@@ -10,7 +10,11 @@ export interface IBotData {
   access_token?: string,
   refresh_token?: string
   supinicApiUser?: number,
-  supinicApiKey?: string
+  supinicApiKey?: string,
+  botOwners?: string,
+  botAdmins?: string,
+  botOwnersParsed?: number[],
+  botAdminsParsed?: number[]
 }
 
 export class SqlBotData {

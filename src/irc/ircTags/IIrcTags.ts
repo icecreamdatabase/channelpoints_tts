@@ -1,7 +1,7 @@
 "use strict"
 
 export interface IIrcBase {
-  "tags": IClearChatTags | IClearMsgTags | IUserStateTags,
+  "tags": IClearChatTags | IClearMsgTags | IPrivMsgTags | IUserStateTags,
   "command": "CLEARCHAT" | "CLEARMSG" | "GLOBALUSERSTATE" | "PRIVMSG" | "ROOMSTATE" | "USERNOTICE" | "USERSTATE",
   "prefix": "tmi.twitch.tv",
   "param": string, // #roomName
@@ -32,6 +32,34 @@ export interface IClearMsg extends IIrcBase {
   "command": "CLEARMSG"
   "trailing": string // Message timed out
 }
+
+export interface IPrivMsgTags {
+  "badge-info": true | string,
+  "badges": true | string,
+  "color": true | string,
+  "display-name": string,
+  "emotes": true | string,
+  "flags": true | string, // ???
+  "id": string,
+  /** @deprecated */
+  "mod": boolean,
+  "room-id": string,
+  /** @deprecated */
+  "subscriber": boolean,
+  "tmi-sent-ts": string //TODO make this date somehow
+  /** @deprecated */
+  "turbo": boolean,
+  "user-id": string,
+  /** @deprecated */
+  "user-type": "empty" | "mod" | "global_mod" | "admin" | "staff"
+}
+
+export interface IPrivMsg extends IIrcBase {
+  "tags": IPrivMsgTags,
+  "command": "PRIVMSG"
+  "trailing": string // Message sent
+}
+
 
 export interface IUserStateTags {
   "badge-info": true | string,

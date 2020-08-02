@@ -1,8 +1,8 @@
 "use strict"
 
 import {Bot} from "../../Bot"
-import {UserLevels} from "../../Enums"
-import {IUserState, IUserStateTags} from "./IIrcTags";
+import {IUserState} from "./IIrcTags"
+import {UserLevelsHelper} from "../../helper/UserLevelsHelper"
 
 export class UserState {
   private readonly _bot: Bot
@@ -28,28 +28,10 @@ export class UserState {
     if (roomId && this.bot.channels.hasChannel(roomId)) {
       const channel = this.bot.channels.getChannel(roomId) // do we really need both the hasChannel check and the getChanel handling?
       if (channel) {
-        channel.botStatus = UserState.getUserLevel(userState.tags)
+        channel.botStatus = UserLevelsHelper.getUserLevel(userState.tags.badges)
       }
     }
 
     return true
-  }
-
-  private static getUserLevel (tagsObj: IUserStateTags): UserLevels {
-    // If no badges are supplied the badges object gets parsed into "true"
-    if (typeof tagsObj.badges !== "string") {
-      return UserLevels.DEFAULT
-    }
-
-    const badgeSplit: string[] = tagsObj.badges.split(",")
-    const badgeSplitUserLevels: UserLevels[] = <UserLevels[]>badgeSplit.map(x => {
-      const badgeName: string = x.split("/")[0].toUpperCase()
-      // If it's a valid key in UserLevels return the UserLevels value. Else return undefined which get filtered later on.
-      if (badgeName in UserLevels) {
-        return UserLevels[<keyof typeof UserLevels>badgeName]
-      }
-    }).filter(Boolean) // <-- This removes all undefined from the array. It makes UserLevels[] out of (UserLevels | undefined)
-    badgeSplitUserLevels.push(UserLevels.DEFAULT)
-    return Math.max(...badgeSplitUserLevels)
   }
 }
