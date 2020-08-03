@@ -6,6 +6,7 @@ import {Logger} from "../../helper/Logger"
 import {UserLevels} from "../../Enums"
 import {UserLevelsHelper} from "../../helper/UserLevelsHelper"
 import {UserInChannelHelper} from "../../helper/UserInChannelHelper"
+import {Hardcoded} from "../commands/Hardcoded"
 
 export interface IMessageObject {
   raw: IPrivMsg,
@@ -20,10 +21,11 @@ export interface IMessageObject {
 
 export class PrivMsg {
   private readonly _bot: Bot
+  private readonly _hardcoded: Hardcoded
 
   constructor (bot: Bot) {
     this._bot = bot
-
+    this._hardcoded = new Hardcoded(this.bot)
   }
 
   public async init (): Promise<void> {
@@ -66,10 +68,9 @@ export class PrivMsg {
 
     Logger.info(`${this.bot.userId} (${this.bot.userName}) <-- ${messageObj.channelName} ${messageObj.username}: ${messageObj.message}`)
 
-    //hardcoded always first
-    //if (this.hardcoded.handle(messageObj)) {
-    //  return true
-    //}
+    if (await this._hardcoded.handle(messageObj)) {
+      return true
+    }
 
     //await this.channelPoints.handlePrivMsg(messageObj)
 

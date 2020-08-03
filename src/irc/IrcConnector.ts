@@ -17,6 +17,7 @@ import Assert from "assert"
 
 import config from "../config.json"
 import {Channels} from "../channel/Channels"
+import {IMessageObject} from "./ircTags/PrivMsg"
 
 const AUTH_UPDATE_INTERVAL_CHECK = 15000 // 15 seconds
 
@@ -93,8 +94,8 @@ export class IrcConnector extends EventEmitter {
    * @param message
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
-  sayWithMsgObj (msgObj: any/* TODO */, message: string, useSameSendConnectionAsPrevious?: boolean): void {
-    this.sayWithBoth(msgObj.roomId, msgObj.channel, message, useSameSendConnectionAsPrevious)
+  sayWithMsgObj (msgObj: IMessageObject/* TODO */, message: string, useSameSendConnectionAsPrevious?: boolean): void {
+    this.sayWithBoth(msgObj.roomId, msgObj.channelName, message, useSameSendConnectionAsPrevious)
   }
 
   /**
