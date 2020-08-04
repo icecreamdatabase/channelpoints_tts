@@ -8,31 +8,48 @@ export interface ISqlChannel {
   channelName: string,
   isTwitchPartner: boolean,
   maxMessageLength: number,
-  minCooldown: number
+  minCooldown: number,
+  ircMuted: boolean,
+  isQueueMessages: boolean,
+  volume: number,
+  canModsChangeSettings: boolean
 }
 
 export class SqlChannels {
   static async getChannels (): Promise<ISqlChannel[]> {
     const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`
-        SELECT roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown
+        SELECT roomId,
+               channelName,
+               isTwitchPartner,
+               maxMessageLength,
+               minCooldown,
+               ircMuted,
+               isQueueMessages,
+               volume,
+               canModsChangeSettings
         FROM channels
         WHERE enabled = b'1';`)
 
     return <ISqlChannel[]>rows
   }
 
-  static async addOrUpdateChannel (roomId: number, channelName: string, isTwitchPartner: boolean, maxMessageLength: number, minCooldown: number): Promise<void> {
-    await Sql.query(`INSERT INTO channels (roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown)
-                     VALUES (?, ?, ?, ?, ?)
-                     ON DUPLICATE KEY UPDATE channelName      = VALUES(channelName),
-                                             isTwitchPartner  = VALUES(isTwitchPartner),
-                                             maxMessageLength = VALUES(maxMessageLength),
-                                             minCooldown      = VALUES(minCooldown);
-    `, [roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown])
+  static async addOrUpdateChannel (roomId: number, channelName: string, isTwitchPartner: boolean, maxMessageLength: number, minCooldown: number, ircMuted: boolean, isQueueMessages: boolean, volume: number, canModsChangeSettings: boolean): Promise<void> {
+    await Sql.query(`INSERT INTO channels (roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown,
+                                           ircMuted, isQueueMessages, volume, canModsChangeSettings)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     ON DUPLICATE KEY UPDATE channelName           = VALUES(channelName),
+                                             isTwitchPartner       = VALUES(isTwitchPartner),
+                                             maxMessageLength      = VALUES(maxMessageLength),
+                                             minCooldown           = VALUES(minCooldown),
+                                             ircMuted              = VALUES(ircMuted),
+                                             isQueueMessages       = VALUES(isQueueMessages),
+                                             volume                = VALUES(volume),
+                                             canModsChangeSettings = VALUES(canModsChangeSettings);
+    `, [roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown, ircMuted, isQueueMessages, volume, canModsChangeSettings])
   }
 
   static async updateChannelInDb (channel: Channel): Promise<void> {
-    await SqlChannels.addOrUpdateChannel(channel.roomId, channel.channelName, channel.isTwitchPartner, channel.maxMessageLength, channel.minCooldown)
+    await SqlChannels.addOrUpdateChannel(channel.roomId, channel.channelName, channel.isTwitchPartner, channel.maxMessageLength, channel.minCooldown, channel.ircMuted, channel.isQueueMessages, channel.volume, channel.canModsChangeSettings)
   }
 
   /**
@@ -40,17 +57,14 @@ export class SqlChannels {
    */
   static async updateChannelFromDb (channel: Channel): Promise<boolean> {
     const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`
-        SELECT roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown
+        SELECT roomId, channelName, isTwitchPartner, maxMessageLength, minCooldown, ircMuted, isQueueMessages, volume, canModsChangeSettings
         FROM channels
         WHERE enabled = b'1'
           AND roomId = ?;`, [channel.roomId])
 
     if (rows.length > 0) {
       const row = rows[0]
-      channel.channelName = row.channelName
-      channel.isTwitchPartner = row.isTwitchPartner
-      channel.maxMessageLength = row.maxMessageLength
-      channel.minCooldown = row.minCooldown
+      channel.updateDbSettingsFromOtherChannel(<ISqlChannel>row)
       return true
     }
     return false

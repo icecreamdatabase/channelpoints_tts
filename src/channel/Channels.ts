@@ -63,11 +63,9 @@ export class Channels extends EventEmitter {
       if (existingChannel) {
         if (existingChannel.channelName !== newChannel.channelName) {
           this.emit(Channels.eventNameNameChange, existingChannel.channelName, newChannel.channelName)
-          existingChannel.channelName = newChannel.channelName
+          //existingChannel.channelName = newChannel.channelName
         }
-        existingChannel.isTwitchPartner = newChannel.isTwitchPartner
-        existingChannel.maxMessageLength = newChannel.maxMessageLength
-        existingChannel.minCooldown = newChannel.minCooldown
+        existingChannel.updateDbSettingsFromOtherChannel(newChannel)
       } else {
         throw new Error(`Channel exists but can't be fetched!?: \n${util.inspect(newChannel)}`)
       }
@@ -89,6 +87,10 @@ export class Channels extends EventEmitter {
   public async dropChannel (channel: Channel): Promise<void> {
     this.deleteChannelFromMap(channel)
     await SqlChannels.dropChannel(channel.roomId)
+  }
+
+  public addNewWithDefaults (roomId: number, channelName: string, isTwitchPartner: boolean): void {
+    this.addOrUpdateChannel(new Channel(this.bot, roomId, channelName, isTwitchPartner))
   }
 }
 
