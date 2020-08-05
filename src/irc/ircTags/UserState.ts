@@ -25,8 +25,8 @@ export class UserState {
   async onUserState (userState: IUserState): Promise<boolean> {
     // update own botStatus in a specific channel
     const roomId = await this.bot.userIdLoginCache.nameToId(userState.param.substr(1))
-    if (roomId && this.bot.channels.hasChannel(roomId)) {
-      const channel = this.bot.channels.getChannel(roomId) // do we really need both the hasChannel check and the getChanel handling?
+    if (roomId && this.bot.channels.has(roomId)) {
+      const channel = this.bot.channels.get(roomId) // do we really need both the has check and the getChanel handling?
       if (channel) {
         channel.botStatus = UserLevelsHelper.getUserLevel(userState.tags.badges)
       }

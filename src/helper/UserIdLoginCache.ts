@@ -43,7 +43,7 @@ export class UserIdLoginCache {
         && UserIdLoginCache.userNameById.get(parseInt(user._id, 10)) !== user.name) {
         // Person must have changed their name
         Logger.debug(`## Name change (${user._id}): ${UserIdLoginCache.userNameById.get(parseInt(user._id, 10))} --> ${user.name}`)
-        const channel = await this.bot.channels.getChannel(parseInt(user._id, 10))
+        const channel = await this.bot.channels.get(parseInt(user._id, 10))
         if (channel) {
           channel.channelName = user.name
         }

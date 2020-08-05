@@ -6,12 +6,12 @@ import {Bot} from "../Bot"
 import EventEmitter from "eventemitter3"
 
 export class Channels extends EventEmitter {
-  public static readonly eventNameUpdate = "update"
-  public static readonly eventNameJoin = "join"
-  public static readonly eventNamePart = "part"
-  public static readonly eventNameNameChange = "nameChange"
+  public static readonly eventNameUpdate = Symbol("update")
+  public static readonly eventNameJoin = Symbol("join")
+  public static readonly eventNamePart = Symbol("part")
+  public static readonly eventNameNameChange = Symbol("nameChange")
   private readonly channelRefreshInterval: number = 30000 //30 seconds
-  private readonly _bot: Bot;
+  private readonly _bot: Bot
   private readonly _sqlChannels: Map<number, Channel> = new Map<number, Channel>()
 
   constructor (bot: Bot) {
@@ -37,15 +37,15 @@ export class Channels extends EventEmitter {
     this.emit(Channels.eventNameUpdate)
   }
 
-  public hasChannel (roomId: number): boolean {
+  public has (roomId: number): boolean {
     return this._sqlChannels.has(roomId)
   }
 
-  public getChannel (roomId: number): Channel | undefined {
+  public get (roomId: number): Channel | undefined {
     return this._sqlChannels.get(roomId)
   }
 
-  public getAllChannels (): IterableIterator<Channel> {
+  public getAll (): IterableIterator<Channel> {
     return this._sqlChannels.values()
   }
 
@@ -59,7 +59,7 @@ export class Channels extends EventEmitter {
 
   public addOrUpdateChannel (newChannel: Channel): void {
     if (this._sqlChannels.has(newChannel.roomId)) {
-      const existingChannel = this.getChannel(newChannel.roomId)
+      const existingChannel = this.get(newChannel.roomId)
       if (existingChannel) {
         if (existingChannel.channelName !== newChannel.channelName) {
           this.emit(Channels.eventNameNameChange, existingChannel.channelName, newChannel.channelName)

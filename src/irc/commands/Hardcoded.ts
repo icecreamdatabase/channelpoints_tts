@@ -127,7 +127,7 @@ export class Hardcoded {
    * Say an array of strings.
    */
   async batchSay (roomId: number, channelName: string, messages: string[], batchLimit: number = Hardcoded.BATCH_DEFAULT_LIMIT, useSameSendConnectionForAllMessages = false): Promise<void> {
-    const channelObj = this.bot.channels.getChannel(roomId)
+    const channelObj = this.bot.channels.get(roomId)
     if (!channelObj) {
       return
     }
@@ -146,7 +146,7 @@ export class Hardcoded {
         messageInChunkCount = 0
 
         // update limit
-        const channelObj = this.bot.channels.getChannel(roomId)
+        const channelObj = this.bot.channels.get(roomId)
         if (channelObj) {
           botStatus = channelObj.botStatus || UserLevels.DEFAULT
           currentLimit = botStatus >= UserLevels.VIP

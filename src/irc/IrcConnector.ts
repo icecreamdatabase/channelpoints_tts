@@ -113,9 +113,9 @@ export class IrcConnector extends EventEmitter {
         botUserId: this.bot.userId,
         channelName,
         message,
-        botStatus: this.bot.channels.getChannel(channelId)?.botStatus || UserLevels.DEFAULT,
+        botStatus: this.bot.channels.get(channelId)?.botStatus || UserLevels.DEFAULT,
         useSameSendConnectionAsPrevious,
-        maxMessageLength: this.bot.channels.getChannel(channelId)?.maxMessageLength
+        maxMessageLength: this.bot.channels.get(channelId)?.maxMessageLength
       },
       version: this.version,
       applicationId: config.wsConfig.TwitchIrcConnectorOwnApplicationId

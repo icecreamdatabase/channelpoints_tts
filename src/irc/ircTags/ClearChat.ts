@@ -40,9 +40,9 @@ export class ClearChat {
       DiscordLog.info(`${this.bot.userName} got banned in #${channelName}`)
       Logger.info(`${this.bot.userName} got banned in #${channelName}`)
 
-      if (this.bot.channels.hasChannel(roomId)) {
+      if (this.bot.channels.has(roomId)) {
         DiscordLog.custom("tts-status-log", "Ban:", channelName, DiscordLog.getDecimalFromHexString("#FFFF00"))
-        await this.bot.channels.getChannel(roomId)?.drop()
+        await this.bot.channels.get(roomId)?.drop()
         await this.bot.channels.updateFromDb()
         this.bot.irc.ircConnector.sendWhisper(channelName, `This bot has left your channel because it got banned by a moderator. If you want to use the bot again you simply have to unban it, wait one minute and register again.`)
         DiscordLog.custom("tts-status-log", "Part:", channelName, DiscordLog.getDecimalFromHexString("#FF0000"))

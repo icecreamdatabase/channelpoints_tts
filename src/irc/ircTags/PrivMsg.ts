@@ -56,7 +56,7 @@ export class PrivMsg {
       return true
     }
 
-    const channelObj = this.bot.channels.getChannel(messageObj.roomId)
+    const channelObj = this.bot.channels.get(messageObj.roomId)
 
     if (!channelObj) {
       //DiscordLog.error(`PRIVMSG without channelObj ${messageObj.roomId}\n\n${util.inspect(messageObj)}`)
