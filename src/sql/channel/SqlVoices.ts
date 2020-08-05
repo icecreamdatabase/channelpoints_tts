@@ -10,6 +10,10 @@ export interface ISqlVoices {
 }
 
 export class SqlVoices {
+  private static _voiceDbId: Map<number, ISqlVoices> = new Map<number, ISqlVoices>()
+  private static _voiceVoicesId: Map<string, ISqlVoices> = new Map<string, ISqlVoices>()
+  private static _voiceVoicesName: Map<string, ISqlVoices> = new Map<string, ISqlVoices>()
+
   private static async getVoices (): Promise<ISqlVoices[]> {
     const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`
         SELECT id, voiceId, voiceName, language
@@ -18,31 +22,46 @@ export class SqlVoices {
     return <ISqlVoices[]>rows
   }
 
-  public static async getVoiceDbId (): Promise<Record<number, ISqlVoices>> {
-    const voices: Record<number, ISqlVoices> = {}
-
-    for (const sqlVoice of await this.getVoices()) {
-      voices[sqlVoice.id] = sqlVoice
+  /**
+   * Function caches after first run because the values should never change.
+   */
+  public static async getVoiceDbId (): Promise<Map<number, ISqlVoices>> {
+    if (this._voiceDbId.size === 0) {
+      const voices: Map<number, ISqlVoices> = new Map<number, ISqlVoices>()
+      for (const sqlVoice of await this.getVoices()) {
+        voices.set(sqlVoice.id, sqlVoice)
+      }
+      this._voiceDbId = voices
     }
-    return voices
+    return this._voiceDbId
   }
 
-  public static async getVoiceVoicesId (): Promise<Record<string, ISqlVoices>> {
-    const voices: Record<string, ISqlVoices> = {}
-
-    for (const sqlVoice of await this.getVoices()) {
-      voices[sqlVoice.voicesId] = sqlVoice
+  /**
+   * Function caches after first run because the values should never change.
+   */
+  public static async getVoiceVoicesId (): Promise<Map<string, ISqlVoices>> {
+    if (this._voiceVoicesId.size === 0) {
+      const voices: Map<string, ISqlVoices> = new Map<string, ISqlVoices>()
+      for (const sqlVoice of await this.getVoices()) {
+        voices.set(sqlVoice.voicesId, sqlVoice)
+      }
+      this._voiceVoicesId = voices
     }
-    return voices
+    return this._voiceVoicesId
   }
 
-  public static async getVoiceVoicesName (): Promise<Record<string, ISqlVoices>> {
-    const voices: Record<string, ISqlVoices> = {}
-
-    for (const sqlVoice of await this.getVoices()) {
-      voices[sqlVoice.voiceName] = sqlVoice
+  /**
+   * Function caches after first run because the values should never change.
+   */
+  public static async getVoiceVoicesName (): Promise<Map<string, ISqlVoices>> {
+    if (this._voiceVoicesName.size === 0) {
+      const voices: Map<string, ISqlVoices> = new Map<string, ISqlVoices>()
+      for (const sqlVoice of await this.getVoices()) {
+        voices.set(sqlVoice.voiceName, sqlVoice)
+      }
+      this._voiceVoicesName = voices
     }
-    return voices
+    return this._voiceVoicesName
   }
 }
 
