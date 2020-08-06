@@ -30,9 +30,9 @@ export class Channels extends EventEmitter {
   }
 
   public async updateFromDb (): Promise<void> {
-    const channelArr = await SqlChannels.getChannels()
-    for (const channel of channelArr) {
-      this.addOrUpdateChannel(Channel.FromISqlChannel(this.bot, channel))
+    const channelMap = await SqlChannels.getBasicChannelData()
+    for (const channel of channelMap) {
+      this.addOrUpdateChannel(channel[0], channel[1])
     }
     this.emit(Channels.eventNameUpdate)
   }
@@ -57,20 +57,20 @@ export class Channels extends EventEmitter {
     return Array.from(this._sqlChannels.values()).map(value => value.channelName)
   }
 
-  public addOrUpdateChannel (newChannel: Channel): void {
-    if (this._sqlChannels.has(newChannel.roomId)) {
-      const existingChannel = this.get(newChannel.roomId)
+  public addOrUpdateChannel (roomId: number, channelName: string): void {
+    if (this._sqlChannels.has(roomId)) {
+      const existingChannel = this.get(roomId)
       if (existingChannel) {
-        if (existingChannel.channelName !== newChannel.channelName) {
-          this.emit(Channels.eventNameNameChange, existingChannel.channelName, newChannel.channelName)
+        if (existingChannel.channelName !== channelName) {
+          this.emit(Channels.eventNameNameChange, existingChannel.channelName, channelName)
           //existingChannel.channelName = newChannel.channelName
         }
-        existingChannel.updateDbSettingsFromOtherChannel(newChannel)
+        existingChannel.channelName = channelName
       } else {
-        throw new Error(`Channel exists but can't be fetched!?: \n${util.inspect(newChannel)}`)
+        throw new Error(`Channel exists but can't be fetched!?: \n${roomId} (${channelName})`)
       }
     } else {
-      this.addChannelToMap(newChannel)
+      this.addChannelToMap(new Channel(this.bot, roomId, channelName))
     }
   }
 
@@ -87,10 +87,6 @@ export class Channels extends EventEmitter {
   public async dropChannel (channel: Channel): Promise<void> {
     this.deleteChannelFromMap(channel)
     await SqlChannels.dropChannel(channel.roomId)
-  }
-
-  public addNewWithDefaults (roomId: number, channelName: string, isTwitchPartner: boolean): void {
-    this.addOrUpdateChannel(new Channel(this.bot, roomId, channelName, isTwitchPartner))
   }
 }
 

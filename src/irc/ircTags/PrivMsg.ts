@@ -55,7 +55,7 @@ export class PrivMsg {
     if (messageObj.message.toLowerCase().startsWith("!tts gdpr optout ")) {
       await this.bot.addUserIdToBlacklist(messageObj.userId)
       Logger.info(`User added blacklist: ${messageObj.username} (${messageObj.userId}) - Channel: ${messageObj.channelName} (${messageObj.roomId})`)
-      this.bot.irc.ircConnector.sayWithMsgObj(messageObj, `@${messageObj.username}, You will now be completely ignored by the bot. Please give a few seconds for it to fully apply.`)
+      await this.bot.irc.ircConnector.sayWithMsgObj(messageObj, `@${messageObj.username}, You will now be completely ignored by the bot. Please give a few seconds for it to fully apply.`)
       return true
     }
 

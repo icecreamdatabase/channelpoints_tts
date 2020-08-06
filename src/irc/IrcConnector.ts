@@ -84,8 +84,8 @@ export class IrcConnector extends EventEmitter {
     await this.send(IrcWsCmds.SET_CHANNELS, data)
   }
 
-  sendWhisper (targetUser: string, message: string): void {
-    this.sayWithBoth(this.bot.userId, this.bot.userName, `.w ${targetUser} ${message}`)
+  async sendWhisper (targetUser: string, message: string): Promise<void> {
+    await this.sayWithBoth(this.bot.userId, this.bot.userName, `.w ${targetUser} ${message}`)
   }
 
   /**
@@ -94,8 +94,8 @@ export class IrcConnector extends EventEmitter {
    * @param message
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
-  sayWithMsgObj (msgObj: IMessageObject/* TODO */, message: string, useSameSendConnectionAsPrevious?: boolean): void {
-    this.sayWithBoth(msgObj.roomId, msgObj.channelName, message, useSameSendConnectionAsPrevious)
+  async sayWithMsgObj (msgObj: IMessageObject, message: string, useSameSendConnectionAsPrevious?: boolean): Promise<void> {
+    await this.sayWithBoth(msgObj.roomId, msgObj.channelName, message, useSameSendConnectionAsPrevious)
   }
 
   /**
@@ -106,7 +106,7 @@ export class IrcConnector extends EventEmitter {
    * @param {string} message
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
-  sayWithBoth (channelId: number, channelName: string, message: string, useSameSendConnectionAsPrevious?: boolean): void {
+  public async sayWithBoth (channelId: number, channelName: string, message: string, useSameSendConnectionAsPrevious?: boolean): Promise<void> {
     const data: IWsDataMain = {
       cmd: IrcWsCmds.SEND,
       data: {
@@ -115,7 +115,7 @@ export class IrcConnector extends EventEmitter {
         message,
         botStatus: this.bot.channels.get(channelId)?.botStatus || UserLevels.DEFAULT,
         useSameSendConnectionAsPrevious,
-        maxMessageLength: this.bot.channels.get(channelId)?.maxMessageLength
+        maxMessageLength: await this.bot.channels.get(channelId)?.getMaxMessageLength()
       },
       version: this.version,
       applicationId: config.wsConfig.TwitchIrcConnectorOwnApplicationId

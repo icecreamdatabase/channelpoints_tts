@@ -30,9 +30,9 @@ export class UserIdLoginCache {
   }
 
   public async prefetchFromDatabase (): Promise<void> {
-    for (const channel of await SqlChannels.getChannels()) {
-      UserIdLoginCache.userNameById.set(channel.roomId, channel.channelName)
-      UserIdLoginCache.userIdByName.set(channel.channelName.toLowerCase(), channel.roomId)
+    for (const channel of await SqlChannels.getBasicChannelData()) {
+      UserIdLoginCache.userNameById.set(channel[0], channel[1])
+      UserIdLoginCache.userIdByName.set(channel[1].toLowerCase(), channel[0])
     }
   }
 

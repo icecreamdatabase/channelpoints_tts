@@ -34,7 +34,7 @@ export class Hardcoded {
       && messageObj.message.startsWith("<r ")) {
 
       this.bot.emit(this.bot.eventNameRefresh)
-      this.bot.irc.ircConnector.sayWithMsgObj(messageObj, "Reloaded everything FeelsGoodMan")
+      await this.bot.irc.ircConnector.sayWithMsgObj(messageObj, "Reloaded everything FeelsGoodMan")
       return true
     }
 
@@ -51,7 +51,7 @@ export class Hardcoded {
       && messageObj.message.startsWith("<tags ")) {
 
       DiscordLog.debug(JSON.stringify(messageObj, null, 2))
-      this.bot.irc.ircConnector.sayWithMsgObj(messageObj, "@" + messageObj.username + ", Done.")
+      await this.bot.irc.ircConnector.sayWithMsgObj(messageObj, "@" + messageObj.username + ", Done.")
       return true
     }
 
@@ -60,7 +60,7 @@ export class Hardcoded {
       && messageObj.message.startsWith("<s ")) {
 
       //TODO: make this high priority "first in queue" again
-      this.bot.irc.ircConnector.sayWithBoth(messageObj.roomId, messageObj.channelName, "Shutting down FeelsBadMan")
+      await this.bot.irc.ircConnector.sayWithBoth(messageObj.roomId, messageObj.channelName, "Shutting down FeelsBadMan")
       setTimeout(function () {
         process.abort()
       }, 1200)
@@ -77,12 +77,12 @@ export class Hardcoded {
       if (evalString) {
         try {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const ss = (x: string) => {
-            this.bot.irc.ircConnector.sayWithMsgObj(messageObj, x.toString())
+          const ss = async (x: string) => {
+            await this.bot.irc.ircConnector.sayWithMsgObj(messageObj, x.toString())
           }
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const so = (x: Record<string, unknown>) => {
-            this.bot.irc.ircConnector.sayWithMsgObj(messageObj, util.inspect(x))
+          const so = async (x: Record<string, unknown>) => {
+            await this.bot.irc.ircConnector.sayWithMsgObj(messageObj, util.inspect(x))
           }
           msg = (eval(evalString) || "").toString()
         } catch (err) {
@@ -99,7 +99,7 @@ export class Hardcoded {
       } else {
         msg = messageObj.username + ", Nothing to eval given..."
       }
-      this.bot.irc.ircConnector.sayWithMsgObj(messageObj, msg)
+      await this.bot.irc.ircConnector.sayWithMsgObj(messageObj, msg)
     }
 
     /* batchsay */
@@ -161,7 +161,7 @@ export class Hardcoded {
         await new Promise(resolve => setTimeout(resolve, Hardcoded.BATCH_DELAY_BETWEEN_CHUNKS))
       }
 
-      this.bot.irc.ircConnector.sayWithBoth(roomId, channelName, message, useSameSendConnectionForAllMessages)
+      await this.bot.irc.ircConnector.sayWithBoth(roomId, channelName, message, useSameSendConnectionForAllMessages)
       messageInChunkCount++
       totalMessagesSent++
     }
