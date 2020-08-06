@@ -84,9 +84,9 @@ export class Channels extends EventEmitter {
     this.emit(Channels.eventNamePart, channel.channelName)
   }
 
-  public async dropChannel (channel: Channel): Promise<void> {
+  public async disableChannel (channel: Channel): Promise<void> {
     this.deleteChannelFromMap(channel)
-    await SqlChannels.dropChannel(channel.roomId)
+    await SqlChannels.disableChannel(channel.roomId)
   }
 }
 

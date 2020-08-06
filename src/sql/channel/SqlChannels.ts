@@ -53,10 +53,8 @@ export class SqlChannels {
     return channels
   }
 
-  static async dropChannel (roomId: number | string): Promise<void> {
-    await Sql.query(`DELETE
-                     FROM channels
-                     WHERE roomId = ?; `, [roomId])
+  static async disableChannel (roomId: number | string): Promise<void> {
+    await Sql.query(`UPDATE IGNORE channels SET enabled = b'0' WHERE roomId = ?; `, [roomId])
   }
 }
 

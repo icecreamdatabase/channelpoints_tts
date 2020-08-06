@@ -44,8 +44,8 @@ export class Channel {
     this._botStatus = value
   }
 
-  public async drop (): Promise<void> {
-    await this.bot.channels.dropChannel(this) //is this really a good idea?
+  public async disable (): Promise<void> {
+    await this.bot.channels.disableChannel(this) //is this really a good idea?
   }
 
   private get bot (): Bot {
