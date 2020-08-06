@@ -4,6 +4,7 @@ import {ISqlChannel, SqlChannels} from "../sql/channel/SqlChannels"
 import {Bot} from "../Bot"
 import {ApiOther} from "../api/Api"
 import {UserLevels} from "../Enums"
+import {SqlChannelUserBlacklist} from "../sql/channel/SqlChannelUserBlacklist"
 
 export class Channel {
   private readonly _bot: Bot
@@ -27,7 +28,7 @@ export class Channel {
   private _botStatus: UserLevels = UserLevels.DEFAULT
 
   //private channelpointsSettinsg: ...
-  private channelUserBlacklist: Set<number> = new Set<number>()
+  private _channelUserBlacklist: Set<number> = new Set<number>()
 
 
   public constructor (bot: Bot,
@@ -202,6 +203,19 @@ export class Channel {
 
   public async getChatters (): Promise<string[]> {
     return await ApiOther.getAllUsersInChannel(this.channelName)
+  }
+
+  public isUserIdInBlacklist (userId: number): boolean {
+    return this._channelUserBlacklist.has(userId)
+  }
+
+  public async addUserIdToBlacklist (userId: number): Promise<void> {
+    SqlChannelUserBlacklist.addUserId(this.roomId, userId)
+    await this.updateChannelUserBlacklist()
+  }
+
+  public async updateChannelUserBlacklist (): Promise<void> {
+    (await SqlChannelUserBlacklist.getUserIds(this.roomId)).forEach(item => this._channelUserBlacklist.add(item))
   }
 }
 

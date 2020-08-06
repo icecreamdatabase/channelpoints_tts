@@ -45,7 +45,10 @@ export class PrivMsg {
     messageObj.message += " "
 
     if (this.bot.isUserIdInBlacklist(messageObj.userId)) {
-      //Logger.debug(`User on blacklist: ${messageObj.username} (${messageObj.userId}) - Channel: ${messageObj.channel} (${messageObj.roomId})`)
+      return true
+    }
+
+    if (this.bot.channels.get(messageObj.roomId)?.isUserIdInBlacklist(messageObj.userId)) {
       return true
     }
 
