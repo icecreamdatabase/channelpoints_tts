@@ -1,5 +1,5 @@
 "use strict"
-import Sql from "./../Sql"
+import Sql from "../Sql"
 import {RowDataPacket, FieldPacket} from "mysql2"
 
 export interface ISqlRewardVoice {

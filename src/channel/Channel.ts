@@ -15,6 +15,7 @@ export class Channel {
 
   private static readonly _defaultMaxMessageLength = 450
   private static readonly _defaultMinCooldown = 0
+  private static readonly _defaultTimeoutCheckTime = 2
   private static readonly _defaultIrcMuted = false
   private static readonly _defaultIsQueueMessages = true
   private static readonly _defaultVolume = 100
@@ -77,6 +78,10 @@ export class Channel {
 
   public async getMinCooldown (): Promise<number> {
     return (await SqlChannels.get(this.roomId))?.minCooldown || Channel._defaultMinCooldown
+  }
+
+  public async getTimeoutCheckTime (): Promise<number> {
+    return (await SqlChannels.get(this.roomId))?.timeoutCheckTime || Channel._defaultTimeoutCheckTime
   }
 
   public async getIrcMuted (): Promise<boolean> {

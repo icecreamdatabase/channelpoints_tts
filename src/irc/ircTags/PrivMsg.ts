@@ -18,7 +18,8 @@ export interface IMessageObject {
   username: string,
   message: string
   isACTION: boolean,
-  userLevel: UserLevels
+  userLevel: UserLevels,
+  timestamp: Date
 }
 
 export class PrivMsg {
@@ -100,7 +101,8 @@ export class PrivMsg {
       username: privMsgObj.tags['display-name'],
       message: privMsgObj.trailing,
       isACTION: false,
-      userLevel: UserLevels.DEFAULT
+      userLevel: UserLevels.DEFAULT,
+      timestamp: new Date(parseInt(privMsgObj.tags["tmi-sent-ts"], 10)),
     }
     msgObj.userLevel = this.getUserLevel(msgObj)
     //Deal with /me messages
