@@ -2,6 +2,8 @@
 import Sql from "./../Sql"
 import {RowDataPacket, FieldPacket} from "mysql2"
 
+//import * as voicesJson from "../../se-voices.json"
+
 export interface ISqlVoices {
   id: number,
   voicesId: string,
@@ -63,5 +65,19 @@ export class SqlVoices {
     }
     return this._voiceVoicesName
   }
+
+  //public static async generateFromJson (): Promise<void> {
+  //  for (const language of Object.values(voicesJson)) {
+  //    if (language.voices) {
+  //      for (const voice of language.voices) {
+  //        if (voice) {
+  //          await Sql.query(` INSERT IGNORE INTO voices (voiceId, voiceName, language)
+  //                            VALUES (?, ?, ?);`, [voice.id, voice.name, language.lang])
+  //        }
+  //      }
+  //    }
+  //  }
+  //  Logger.info("generateFromJson done")
+  //}
 }
 

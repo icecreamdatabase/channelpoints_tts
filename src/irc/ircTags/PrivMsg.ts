@@ -7,6 +7,8 @@ import {UserLevels} from "../../Enums"
 import {UserLevelsHelper} from "../../helper/UserLevelsHelper"
 import {UserInChannelHelper} from "../../helper/UserInChannelHelper"
 import {Hardcoded} from "../commands/Hardcoded"
+import {Commands} from "../commands/Commands"
+import {CustomRewards} from "../commands/CustomRewards"
 
 export interface IMessageObject {
   raw: IPrivMsg,
@@ -22,10 +24,14 @@ export interface IMessageObject {
 export class PrivMsg {
   private readonly _bot: Bot
   private readonly _hardcoded: Hardcoded
+  private readonly _commands: Commands
+  private readonly _customRewards: CustomRewards
 
   constructor (bot: Bot) {
     this._bot = bot
     this._hardcoded = new Hardcoded(this.bot)
+    this._commands = new Commands(this.bot)
+    this._customRewards = new CustomRewards(this.bot)
   }
 
   public async init (): Promise<void> {
@@ -75,7 +81,9 @@ export class PrivMsg {
       return true
     }
 
-    //await this.channelPoints.handlePrivMsg(messageObj)
+    await this._commands.handle(messageObj)
+
+    await this._customRewards.handle(messageObj)
 
     return false
   }

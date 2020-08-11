@@ -15,8 +15,8 @@ import {Logger} from "./helper/Logger"
 export class Bot extends EventEmitter {
   private static readonly initErrorRestartDelay = 15000 // 15 seconds
   private static readonly UPDATE_GLOBAL_USER_BLACKLIST_INTERVAL = 120000 // 2 minutes
-  public readonly eventNameRefresh = 'refresh'
-  public readonly eventNameBotReady = 'ready'
+  public readonly eventNameRefresh = Symbol('refresh')
+  public readonly eventNameBotReady = Symbol('ready')
   public authentication: Authentication
   private readonly _userIdLoginCache: UserIdLoginCache
   private readonly _apiHelix: ApiHelix

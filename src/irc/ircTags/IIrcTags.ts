@@ -37,6 +37,7 @@ export interface IPrivMsgTags {
   "badge-info": true | string,
   "badges": true | string,
   "color": true | string,
+  "custom-reward-id"?: string
   "display-name": string,
   "emotes": true | string,
   "flags": true | string, // ???

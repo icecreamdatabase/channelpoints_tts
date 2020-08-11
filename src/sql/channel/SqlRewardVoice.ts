@@ -12,7 +12,7 @@ export interface ISqlRewardVoice {
 }
 
 export class SqlRewardVoice {
-  private static async get (roomId: number, rewardId: string): Promise<ISqlRewardVoice | undefined> {
+  public static async get (roomId: number, rewardId: string): Promise<ISqlRewardVoice | undefined> {
     const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`
         SELECT id,
                roomId,
