@@ -8,7 +8,8 @@ export interface ISqlRewardVoice {
   rewardId: string,
   voicesId: number,
   isConversation: boolean,
-  isSubOnly: boolean
+  isSubOnly: boolean,
+  cooldown: number
 }
 
 export class SqlRewardVoice {

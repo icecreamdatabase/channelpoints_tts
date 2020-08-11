@@ -3,11 +3,12 @@ import {Bot} from "../../Bot"
 import {IMessageObject} from "../ircTags/PrivMsg"
 import {SqlRewardVoice} from "../../sql/channel/SqlRewardVoice"
 import {Logger} from "../../helper/Logger"
-import {ISqlVoices, SqlVoices} from "../../sql/channel/SqlVoices"
-import * as util from "util"
+import {UserLevels} from "../../Enums"
 
 export class CustomRewards {
   private readonly _bot: Bot
+  // CustomRewardId is the key. This is unique globally so we don't have to worry about channel specific stuff.
+  private static readonly _cooldown: Map<string, number> = new Map<string, number>()
 
 
   constructor (bot: Bot) {
@@ -32,13 +33,30 @@ export class CustomRewards {
 
     const end = process.hrtime.bigint()
 
-    Logger.log(`${Number(end - start) / 1000000 } ms`)
+    Logger.log(`RewardVoice lookup took ${Number(end - start) / 1000000} ms`)
 
     if (!rewardVoice) {
+      // No custom reward with that customRewardId
       return false
     }
 
-    // TODO
+    //Sub only
+    if (rewardVoice.isSubOnly && messageObj.userLevel < UserLevels.SUB) {
+      // TODO Deny subonly
+
+      return true
+    }
+
+    // cooldown
+    const lastCooldown = CustomRewards._cooldown.get(messageObj.raw.tags["custom-reward-id"]) || 0
+    if (Date.now() + lastCooldown < rewardVoice.cooldown) {
+      // TODO Deny cooldown
+
+      return true
+    }
+    CustomRewards._cooldown.set(messageObj.raw.tags["custom-reward-id"], Date.now())
+
+    // TODO: Add to queue
 
     return true
   }
