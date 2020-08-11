@@ -42,6 +42,7 @@ export interface IPrivMsgTags {
   "emotes": true | string,
   "flags": true | string, // ???
   "id": string,
+  "msg-id"?: "highlighted-message" | "skip-subs-mode-message",
   /** @deprecated */
   "mod": boolean,
   "room-id": string,
