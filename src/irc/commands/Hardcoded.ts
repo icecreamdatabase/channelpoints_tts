@@ -60,7 +60,7 @@ export class Hardcoded {
       && messageObj.message.startsWith("<s ")) {
 
       //TODO: make this high priority "first in queue" again
-      await this.bot.irc.ircConnector.sayWithBoth(messageObj.roomId, messageObj.channelName, "Shutting down FeelsBadMan")
+      await this.bot.irc.ircConnector.sayWithMsgObj(messageObj, "Shutting down FeelsBadMan")
       setTimeout(function () {
         process.abort()
       }, 1200)
@@ -116,7 +116,7 @@ export class Hardcoded {
 
       if (url) {
         const body: string = await ApiOther.getWebsiteContent(url)
-        await this.batchSay(messageObj.roomId, messageObj.channelName, body.split(/(?:\n|\r\n)+/g), undefined, sameConnection)
+        await this.batchSay(messageObj, body.split(/(?:\n|\r\n)+/g), undefined, sameConnection)
       }
     }
 
@@ -126,15 +126,10 @@ export class Hardcoded {
   /**
    * Say an array of strings.
    */
-  async batchSay (roomId: number, channelName: string, messages: string[], batchLimit: number = Hardcoded.BATCH_DEFAULT_LIMIT, useSameSendConnectionForAllMessages = false): Promise<void> {
-    const channelObj = this.bot.channels.get(roomId)
-    if (!channelObj) {
-      return
-    }
+  async batchSay (msgObj: IMessageObject, messages: string[], batchLimit: number = Hardcoded.BATCH_DEFAULT_LIMIT, useSameSendConnectionForAllMessages = false): Promise<void> {
 
-    let botStatus = channelObj.botStatus || UserLevels.DEFAULT
     let messageInChunkCount = 0
-    let currentLimit = botStatus >= UserLevels.VIP
+    let currentLimit = msgObj.channelObj.botStatus >= UserLevels.VIP
       ? this.bot.irc.rateLimitModerator
       : this.bot.irc.rateLimitUser
     currentLimit = Math.min(currentLimit * Hardcoded.BATCH_MAX_FACTOR, batchLimit)
@@ -146,14 +141,10 @@ export class Hardcoded {
         messageInChunkCount = 0
 
         // update limit
-        const channelObj = this.bot.channels.get(roomId)
-        if (channelObj) {
-          botStatus = channelObj.botStatus || UserLevels.DEFAULT
-          currentLimit = botStatus >= UserLevels.VIP
-            ? this.bot.irc.rateLimitModerator
-            : this.bot.irc.rateLimitUser
-          currentLimit = Math.min(currentLimit * Hardcoded.BATCH_MAX_FACTOR, batchLimit)
-        }
+        currentLimit = msgObj.channelObj.botStatus >= UserLevels.VIP
+          ? this.bot.irc.rateLimitModerator
+          : this.bot.irc.rateLimitUser
+        currentLimit = Math.min(currentLimit * Hardcoded.BATCH_MAX_FACTOR, batchLimit)
 
         Logger.info(`New limit: ${currentLimit}`)
         Logger.info(`${totalMessagesSent}/${messages.length} sent`)
@@ -161,7 +152,7 @@ export class Hardcoded {
         await new Promise(resolve => setTimeout(resolve, Hardcoded.BATCH_DELAY_BETWEEN_CHUNKS))
       }
 
-      await this.bot.irc.ircConnector.sayWithBoth(roomId, channelName, message, useSameSendConnectionForAllMessages)
+      await this.bot.irc.ircConnector.sayWithMsgObj(msgObj, message, useSameSendConnectionForAllMessages)
       messageInChunkCount++
       totalMessagesSent++
     }

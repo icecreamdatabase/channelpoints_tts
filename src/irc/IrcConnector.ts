@@ -8,7 +8,7 @@ import {
   IWsDataJoinPartSet,
   IWsDataMain,
   IWsDataReceive,
-  IWsDataRequestIrcStates
+  IWsDataRequestIrcStates, IWsDataSend,
 } from "./IIrcConnector"
 
 import WebSocket from "ws"
@@ -18,11 +18,14 @@ import Assert from "assert"
 import config from "../config.json"
 import {Channels} from "../channel/Channels"
 import {IMessageObject} from "./ircTags/PrivMsg"
+import {DiscordLog} from "../helper/DiscordLog"
 
 const AUTH_UPDATE_INTERVAL_CHECK = 15000 // 15 seconds
 
 export class IrcConnector extends EventEmitter {
-  private readonly _bot: Bot;
+  private static readonly defaultMaxMessageLength = 450
+
+  private readonly _bot: Bot
   private _wsSendQueue: IWsDataMain[] = []
   private _lastSentAuthObj?: IWsDataAuth
   private _ws?: WebSocket
@@ -84,8 +87,21 @@ export class IrcConnector extends EventEmitter {
     await this.send(IrcWsCmds.SET_CHANNELS, data)
   }
 
+  /**
+   * TODO: Handle whisper length
+   */
   async sendWhisper (targetUser: string, message: string): Promise<void> {
-    await this.sayWithBoth(this.bot.userId, this.bot.userName, `.w ${targetUser} ${message}`)
+    const whisperText = `.w ${targetUser} ${message}`
+    if (whisperText.length > IrcConnector.defaultMaxMessageLength) {
+      DiscordLog.error(`Can't send whispers longer than ${IrcConnector.defaultMaxMessageLength} characters: \n${whisperText}`)
+      throw new Error(`Can't send whispers longer than ${IrcConnector.defaultMaxMessageLength} characters \n${whisperText}`)
+    }
+
+    await this.say(this.bot.userId,
+      this.bot.userName,
+      whisperText,
+      UserLevels.BROADCASTER,
+      IrcConnector.defaultMaxMessageLength)
   }
 
   /**
@@ -95,7 +111,13 @@ export class IrcConnector extends EventEmitter {
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
   async sayWithMsgObj (msgObj: IMessageObject, message: string, useSameSendConnectionAsPrevious?: boolean): Promise<void> {
-    await this.sayWithBoth(msgObj.roomId, msgObj.channelName, message, useSameSendConnectionAsPrevious)
+    await this.say(msgObj.roomId,
+      msgObj.channelName,
+      message,
+      msgObj.channelObj.botStatus,
+      await msgObj.channelObj.getMaxMessageLength(),
+      useSameSendConnectionAsPrevious,
+    )
   }
 
   /**
@@ -104,21 +126,23 @@ export class IrcConnector extends EventEmitter {
    * @param {number} channelId
    * @param {string} channelName
    * @param {string} message
+   * @param {UserLevels} botStatus
+   * @param {number} maxMessageLength
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
-  public async sayWithBoth (channelId: number, channelName: string, message: string, useSameSendConnectionAsPrevious?: boolean): Promise<void> {
+  private async say (channelId: number, channelName: string, message: string, botStatus: UserLevels, maxMessageLength: number, useSameSendConnectionAsPrevious?: boolean): Promise<void> {
     const data: IWsDataMain = {
       cmd: IrcWsCmds.SEND,
-      data: {
+      data: <IWsDataSend>{
         botUserId: this.bot.userId,
         channelName,
         message,
-        botStatus: this.bot.channels.get(channelId)?.botStatus || UserLevels.DEFAULT,
+        botStatus: botStatus,
         useSameSendConnectionAsPrevious,
-        maxMessageLength: await this.bot.channels.get(channelId)?.getMaxMessageLength()
+        maxMessageLength: maxMessageLength,
       },
       version: this.version,
-      applicationId: config.wsConfig.TwitchIrcConnectorOwnApplicationId
+      applicationId: config.wsConfig.TwitchIrcConnectorOwnApplicationId,
     }
     this._wsSendQueue.push(data)
     Logger.debug(`${this.bot.userId} (${this.bot.userName}) --> ${channelName} :${message}`)
@@ -233,7 +257,7 @@ export class IrcConnector extends EventEmitter {
       userName: this.bot.userName,
       accessToken: this.bot.authentication.accessToken,
       rateLimitUser: this.bot.irc.rateLimitUser,
-      rateLimitModerator: this.bot.irc.rateLimitModerator
+      rateLimitModerator: this.bot.irc.rateLimitModerator,
     }
     try {
       Assert.deepStrictEqual(data, this._lastSentAuthObj)

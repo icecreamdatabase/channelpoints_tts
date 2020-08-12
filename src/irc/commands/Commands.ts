@@ -61,7 +61,7 @@ export class Commands {
 
     //TODO: cooldown check (We put it back here so skip will always run just not always answer.
 
-    if (response && !(await this.bot.channels.get(msgObj.roomId)?.getIrcMuted())) {
+    if (response && !(await msgObj.channelObj.getIrcMuted())) {
       await this.bot.irc.ircConnector.sayWithMsgObj(msgObj, `${Commands.responsePrefix} @${msgObj.username}, ${response}`)
     }
   }

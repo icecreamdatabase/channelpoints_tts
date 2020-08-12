@@ -62,10 +62,7 @@ export class CustomRewards {
     CustomRewards._lastUsage.set(msgObj.raw.tags["custom-reward-id"], msgObj.timestamp)
 
     /* ————— timeout ————— */
-    const timeoutCheckTime: number | undefined = await this.bot.channels.get(msgObj.roomId)?.getTimeoutCheckTime()
-    if (timeoutCheckTime === undefined) {
-      throw new Error(`timeoutcheckTime for ${msgObj.roomId} (${msgObj.channelName}) is undefined`)
-    }
+    const timeoutCheckTime = await msgObj.channelObj.getTimeoutCheckTime()
 
     // wait the timeoutCheckTime
     await new Promise(resolve => setTimeout(resolve, timeoutCheckTime * 1000))

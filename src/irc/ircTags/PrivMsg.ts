@@ -9,6 +9,7 @@ import {UserInChannelHelper} from "../../helper/UserInChannelHelper"
 import {Hardcoded} from "../commands/Hardcoded"
 import {Commands} from "../commands/Commands"
 import {CustomRewards} from "../commands/CustomRewards"
+import {Channel} from "../../channel/Channel"
 
 export interface IMessageObject {
   raw: IPrivMsg,
@@ -19,7 +20,8 @@ export interface IMessageObject {
   message: string
   isACTION: boolean,
   userLevel: UserLevels,
-  timestamp: Date
+  timestamp: Date,
+  channelObj: Channel
 }
 
 export class PrivMsg {
@@ -48,61 +50,65 @@ export class PrivMsg {
    * Method from bot.TwitchIRCconnection event emitter 'PRIVMSG'.
    */
   private async onChat (obj: IPrivMsg): Promise<boolean> {
-    const messageObj = this.createRawMessageObj(obj)
-    messageObj.message += " "
+    try {
+      const msgObj = await this.createRawMessageObj(obj)
 
-    if (this.bot.isUserIdInBlacklist(messageObj.userId)) {
-      return true
+      if (this.bot.isUserIdInBlacklist(msgObj.userId)) {
+        return true
+      }
+
+      if (msgObj.channelObj.isUserIdInBlacklist(msgObj.userId)) {
+        return true
+      }
+
+      if (msgObj.message.toLowerCase().startsWith("!tts gdpr optout ")) {
+        await this.bot.addUserIdToBlacklist(msgObj.userId)
+        Logger.info(`User added blacklist: ${msgObj.username} (${msgObj.userId}) - Channel: ${msgObj.channelName} (${msgObj.roomId})`)
+        await this.bot.irc.ircConnector.sayWithMsgObj(msgObj, `@${msgObj.username}, You will now be completely ignored by the bot. Please give a few seconds for it to fully apply.`)
+        return true
+      }
+
+      // If a user has typed in the channel, they must be present even if the chatterlist doesn't show them yet
+      UserInChannelHelper.addUsersToUserWasInChannelObj(msgObj.channelName, msgObj.username)
+
+      Logger.info(`${this.bot.userId} (${this.bot.userName}) <-- ${msgObj.channelName} ${msgObj.username}: ${msgObj.message}`)
+
+      if (await this._hardcoded.handle(msgObj)) {
+        return true
+      }
+
+      await this._commands.handle(msgObj)
+
+      await this._customRewards.handle(msgObj)
+
+    } catch (e) {
+      Logger.debug(e)
+      // ignore
     }
-
-    if (this.bot.channels.get(messageObj.roomId)?.isUserIdInBlacklist(messageObj.userId)) {
-      return true
-    }
-
-    if (messageObj.message.toLowerCase().startsWith("!tts gdpr optout ")) {
-      await this.bot.addUserIdToBlacklist(messageObj.userId)
-      Logger.info(`User added blacklist: ${messageObj.username} (${messageObj.userId}) - Channel: ${messageObj.channelName} (${messageObj.roomId})`)
-      await this.bot.irc.ircConnector.sayWithMsgObj(messageObj, `@${messageObj.username}, You will now be completely ignored by the bot. Please give a few seconds for it to fully apply.`)
-      return true
-    }
-
-    const channelObj = this.bot.channels.get(messageObj.roomId)
-
-    if (!channelObj) {
-      //DiscordLog.error(`PRIVMSG without channelObj ${messageObj.roomId}\n\n${util.inspect(messageObj)}`)
-      return false
-    }
-
-    // If a user has typed in the channel, they must be present even if the chatterlist doesn't show them yet
-    UserInChannelHelper.addUsersToUserWasInChannelObj(messageObj.channelName, messageObj.username)
-
-    Logger.info(`${this.bot.userId} (${this.bot.userName}) <-- ${messageObj.channelName} ${messageObj.username}: ${messageObj.message}`)
-
-    if (await this._hardcoded.handle(messageObj)) {
-      return true
-    }
-
-    await this._commands.handle(messageObj)
-
-    await this._customRewards.handle(messageObj)
-
     return false
   }
 
   /**
    * Creates the raw none handled messageObj from the raw irc object
    */
-  private createRawMessageObj (privMsgObj: IPrivMsg): IMessageObject {
+  private async createRawMessageObj (privMsgObj: IPrivMsg): Promise<IMessageObject> {
+    const roomId = parseInt(privMsgObj.tags["room-id"])
+    const channelObj = await this.bot.channels.get(roomId)
+    if (channelObj === undefined) {
+      throw new Error()
+    }
+
     const msgObj: IMessageObject = {
       raw: privMsgObj,
-      roomId: parseInt(privMsgObj.tags['room-id']),
+      roomId: roomId,
       channelName: privMsgObj.param,
       userId: parseInt(privMsgObj.tags['user-id']),
       username: privMsgObj.tags['display-name'],
-      message: privMsgObj.trailing,
+      message: privMsgObj.trailing + " ",
       isACTION: false,
       userLevel: UserLevels.DEFAULT,
       timestamp: new Date(parseInt(privMsgObj.tags["tmi-sent-ts"], 10)),
+      channelObj: channelObj,
     }
     msgObj.userLevel = this.getUserLevel(msgObj)
     //Deal with /me messages
