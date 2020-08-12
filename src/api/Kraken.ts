@@ -6,18 +6,15 @@ import {Logger} from "../helper/Logger"
 import {TimeConversion} from "../Enums"
 
 import {
-  IKrakenError,
+  IKrakenChannel,
+  IKrakenChannels,
+  IKrakenChannelVideos,
+  IKrakenFollowsChannel,
+  IKrakenStreams,
   IKrakenUser,
   IKrakenUsers,
   IKrakenUsersChat,
-  IKrakenUsersChatChannel,
-  IKrakenChannel,
-  IKrakenChannels,
-  IKrakenStream,
-  IKrakenStreams,
-  IKrakenChannelVideo,
-  IKrakenChannelVideos,
-  IKrakenFollowsChannel
+  IKrakenUsersChatChannel
 } from "./IKraken"
 
 //TODO: use custom axois instances https://www.npmjs.com/package/axios

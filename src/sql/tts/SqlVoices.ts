@@ -1,6 +1,6 @@
 "use strict"
 import Sql from "../Sql"
-import {RowDataPacket, FieldPacket} from "mysql2"
+import {FieldPacket, RowDataPacket} from "mysql2"
 
 //import * as voicesJson from "../../se-voices.json"
 

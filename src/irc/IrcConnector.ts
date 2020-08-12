@@ -8,7 +8,8 @@ import {
   IWsDataJoinPartSet,
   IWsDataMain,
   IWsDataReceive,
-  IWsDataRequestIrcStates, IWsDataSend
+  IWsDataRequestIrcStates,
+  IWsDataSend
 } from "./IIrcConnector"
 
 import WebSocket from "ws"
