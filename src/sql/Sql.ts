@@ -26,7 +26,7 @@ config.mysqloptions.typeCast = function castField (field, useDefaultTypeCasting)
 }
 
 class Sql {
-  public pool: Mysql.Pool;
+  public pool: Mysql.Pool
 
   constructor () {
     this.pool = Mysql.createPool(config.mysqloptions)

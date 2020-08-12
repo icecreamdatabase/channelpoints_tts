@@ -42,4 +42,10 @@ export interface IWsDataRequestIrcStates {
   botUserId: number
 }
 
-export type IWsDataData = IWsDataAuth | IWsDataJoinPartSet | IWsDataSend | IWsDataReceive | IWsDataRemoveBot | IWsDataRequestIrcStates
+export type IWsDataData =
+  IWsDataAuth
+  | IWsDataJoinPartSet
+  | IWsDataSend
+  | IWsDataReceive
+  | IWsDataRemoveBot
+  | IWsDataRequestIrcStates

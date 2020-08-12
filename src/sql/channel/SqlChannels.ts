@@ -56,7 +56,9 @@ export class SqlChannels {
   }
 
   static async disableChannel (roomId: number | string): Promise<void> {
-    await Sql.query(`UPDATE IGNORE channels SET enabled = b'0' WHERE roomId = ?; `, [roomId])
+    await Sql.query(`UPDATE IGNORE channels
+                     SET enabled = b'0'
+                     WHERE roomId = ?; `, [roomId])
   }
 }
 

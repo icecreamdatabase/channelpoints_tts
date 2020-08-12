@@ -11,7 +11,7 @@ const DISCORD_REQUEST_TEMPLATE = {
   method: 'POST',
   headers: {
     "Content-Type": "application/json"
-  },
+  }
 }
 
 type IWebhookNamesConfig = "bot-log" | "tts-status-log" | "tts-message-log" | "whisper-log"

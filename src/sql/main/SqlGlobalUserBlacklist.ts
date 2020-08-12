@@ -1,6 +1,6 @@
 "use strict"
 import Sql from "./../Sql"
-import {RowDataPacket, FieldPacket} from "mysql2";
+import {RowDataPacket, FieldPacket} from "mysql2"
 
 
 export class SqlGlobalUserBlacklist {

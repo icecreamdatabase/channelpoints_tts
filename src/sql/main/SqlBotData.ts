@@ -1,6 +1,6 @@
 "use strict"
 import Sql from "./../Sql"
-import {FieldPacket, RowDataPacket} from "mysql2";
+import {FieldPacket, RowDataPacket} from "mysql2"
 
 export interface IBotData {
   userId?: number,
@@ -19,7 +19,8 @@ export interface IBotData {
 
 export class SqlBotData {
   public static async getBotData (): Promise<IBotData> {
-    const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`SELECT *FROM botData;`)
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`SELECT *
+                                                                                       FROM botData;`)
     const botData: IBotData = {}
     for (const row of rows) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment

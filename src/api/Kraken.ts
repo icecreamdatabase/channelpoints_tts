@@ -24,7 +24,7 @@ import {
 
 
 export class Kraken {
-  private readonly _bot: Bot;
+  private readonly _bot: Bot
 
   constructor (bot: Bot) {
     this._bot = bot
@@ -42,7 +42,7 @@ export class Kraken {
         headers: {
           'Accept': 'application/vnd.twitchtv.v5+json',
           'Client-ID': this.bot.authentication.clientId,
-          'Authorization': `OAuth ${this.bot.authentication.accessToken}`,
+          'Authorization': `OAuth ${this.bot.authentication.accessToken}`
         }
       })
       return result.data

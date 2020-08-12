@@ -8,7 +8,7 @@ import {
   IWsDataJoinPartSet,
   IWsDataMain,
   IWsDataReceive,
-  IWsDataRequestIrcStates, IWsDataSend,
+  IWsDataRequestIrcStates, IWsDataSend
 } from "./IIrcConnector"
 
 import WebSocket from "ws"
@@ -116,7 +116,7 @@ export class IrcConnector extends EventEmitter {
       message,
       msgObj.channelObj.botStatus,
       await msgObj.channelObj.getMaxMessageLength(),
-      useSameSendConnectionAsPrevious,
+      useSameSendConnectionAsPrevious
     )
   }
 
@@ -139,10 +139,10 @@ export class IrcConnector extends EventEmitter {
         message,
         botStatus: botStatus,
         useSameSendConnectionAsPrevious,
-        maxMessageLength: maxMessageLength,
+        maxMessageLength: maxMessageLength
       },
       version: this.version,
-      applicationId: config.wsConfig.TwitchIrcConnectorOwnApplicationId,
+      applicationId: config.wsConfig.TwitchIrcConnectorOwnApplicationId
     }
     this._wsSendQueue.push(data)
     Logger.debug(`${this.bot.userId} (${this.bot.userName}) --> ${channelName} :${message}`)
@@ -257,7 +257,7 @@ export class IrcConnector extends EventEmitter {
       userName: this.bot.userName,
       accessToken: this.bot.authentication.accessToken,
       rateLimitUser: this.bot.irc.rateLimitUser,
-      rateLimitModerator: this.bot.irc.rateLimitModerator,
+      rateLimitModerator: this.bot.irc.rateLimitModerator
     }
     try {
       Assert.deepStrictEqual(data, this._lastSentAuthObj)

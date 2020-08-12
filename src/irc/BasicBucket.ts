@@ -4,8 +4,8 @@ import {Logger} from "../helper/Logger"
 
 export class BasicBucket {
   private static TICKET_RETURN_TIMEOUT = 30000
-  private _usedTickets: number;
-  private readonly _limit: number;
+  private _usedTickets: number
+  private readonly _limit: number
 
   constructor (limit: number) {
     this._usedTickets = 0

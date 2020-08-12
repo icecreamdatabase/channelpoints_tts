@@ -26,7 +26,7 @@ export class Helix {
         headers: {
           'Accept': 'application/vnd.twitchtv.v5+json',
           'Client-ID': this.bot.authentication.clientId,
-          'Authorization': this.bot.authentication.accessToken,
+          'Authorization': this.bot.authentication.accessToken
         }
       })
       return result.data

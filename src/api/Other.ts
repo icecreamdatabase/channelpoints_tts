@@ -20,7 +20,7 @@ interface IChatters {
 
 export class Other {
   private static readonly SUPINIC_API_PING_INTERVAL = 1800000 // 30 minutes
-  private readonly _bot: Bot;
+  private readonly _bot: Bot
 
   public constructor (bot: Bot) {
     this._bot = bot

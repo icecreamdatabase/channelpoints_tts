@@ -108,7 +108,7 @@ export class PrivMsg {
       isACTION: false,
       userLevel: UserLevels.DEFAULT,
       timestamp: new Date(parseInt(privMsgObj.tags["tmi-sent-ts"], 10)),
-      channelObj: channelObj,
+      channelObj: channelObj
     }
     msgObj.userLevel = this.getUserLevel(msgObj)
     //Deal with /me messages
