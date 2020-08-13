@@ -1,7 +1,6 @@
 "use strict"
 import util from "util"
 // noinspection ES6UnusedImports
-import si from "systeminformation"
 import {UserLevels} from "../../Enums"
 import {Logger} from "../../helper/Logger"
 import {Bot} from "../../Bot"
