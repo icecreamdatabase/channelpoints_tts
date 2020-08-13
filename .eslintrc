@@ -1,22 +1,28 @@
 {
   "parserOptions": {
     "ecmaVersion": 9,
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": "./tsconfig.json"
   },
+  "parser": "@typescript-eslint/parser",
   "env": {
     "browser": true
   },
   "plugins": [
-    "html"
+    "html",
+    "@typescript-eslint"
   ],
-  "extends": "eslint:recommended",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "rules": {
     "block-spacing": "error",
     "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
-    "camelcase": [1],
+    //"camelcase": [1], //disabled because twitch apis love giving none camelcase object keys
     "comma-spacing": "error",
     "comma-style": ["error", "last"],
-    "curly": ["error", "all"],
+    "curly": "error",
     "eol-last": ["error", "always"],
     "eqeqeq": ["error", "smart"],
     "func-call-spacing": ["error", "never"],
@@ -24,7 +30,7 @@
     "keyword-spacing": "error",
     "no-with": "error",
     "no-array-constructor": "error",
-    "no-console": [0],
+    "no-console": "warn",
     "no-constant-condition": ["error", { "checkLoops": false }],
     "no-extend-native": "error",
     "no-multi-spaces": ["error", { "ignoreEOLComments": true }],
@@ -33,7 +39,7 @@
     "one-var": ["error", "never"],
     "semi": ["error", "never"],
     "space-before-blocks": ["error", "always"],
-    "space-before-function-paren": ["error", "always"],
+    "space-before-function-paren": ["error"],
     "space-infix-ops": "error"
   }
 }

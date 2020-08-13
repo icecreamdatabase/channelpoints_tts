@@ -11,7 +11,7 @@ credentials.json
 devicecredentials.json
 
 #config
-config.json
+src/config.json
 
 # Logs
 logs
@@ -86,3 +86,6 @@ typings/
 
 # Serverless directories
 .serverless
+
+# Typescript output dir
+dist/
