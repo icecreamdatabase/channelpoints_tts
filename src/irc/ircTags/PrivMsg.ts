@@ -110,6 +110,12 @@ export class PrivMsg {
       timestamp: new Date(parseInt(privMsgObj.tags["tmi-sent-ts"], 10)),
       channelObj: channelObj
     }
+
+    // If it's a reply cut off the first word "@username" That way message.startsWith can be used
+    if (privMsgObj.tags["reply-parent-msg-id"]) {
+      msgObj.message = msgObj.message.split(" ").slice(1).join(" ")
+    }
+
     msgObj.userLevel = this.getUserLevel(msgObj)
     //Deal with /me messages
     if (msgObj.message.startsWith("\u0001ACTION")) {

@@ -45,6 +45,12 @@ export interface IPrivMsgTags {
   "msg-id"?: "highlighted-message" | "skip-subs-mode-message",
   /** @deprecated */
   "mod": boolean,
+  "reply-parent-display-name": string,
+  /** spaces are /s */
+  "reply-parent-msg-body": string,
+  "reply-parent-msg-id": string,
+  "reply-parent-user-id": string,
+  "reply-parent-user-login": string,
   "room-id": string,
   /** @deprecated */
   "subscriber": boolean,

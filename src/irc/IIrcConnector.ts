@@ -29,7 +29,8 @@ export interface IWsDataSend {
   userId?: number,
   botStatus: UserLevels
   useSameSendConnectionAsPrevious?: boolean, // undefined = automatic detection based on message splitting.
-  maxMessageLength: number
+  maxMessageLength: number,
+  replyParentMessage?: string
 }
 
 export type IWsDataReceive = any[]// TODO: Make this proper

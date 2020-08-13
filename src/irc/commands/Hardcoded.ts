@@ -39,11 +39,12 @@ export class Hardcoded {
     }
 
     if (messageObj.userLevel >= UserLevels.BOTADMIN
-      && messageObj.message.startsWith("<t ")) {
+      && messageObj.message.startsWith("<test ")) {
       //const ttsSettingsObject = this.bot.irc.privMsg.channelPoints.getSettingObj(messageObj.roomId)
       //if (ttsSettingsObject) {
       //  TtsWebSocket.sendTts(messageObj, ttsSettingsObject, messageObj.message.substr(messageObj.message.indexOf(" ") + 1))
       //}
+      await this.bot.irc.ircConnector.sayWithMsgObj(messageObj, "reply test xD", true)
       return true
     }
 
@@ -152,7 +153,7 @@ export class Hardcoded {
         await new Promise(resolve => setTimeout(resolve, Hardcoded.BATCH_DELAY_BETWEEN_CHUNKS))
       }
 
-      await this.bot.irc.ircConnector.sayWithMsgObj(msgObj, message, useSameSendConnectionForAllMessages)
+      await this.bot.irc.ircConnector.sayWithMsgObj(msgObj, message, false, useSameSendConnectionForAllMessages)
       messageInChunkCount++
       totalMessagesSent++
     }

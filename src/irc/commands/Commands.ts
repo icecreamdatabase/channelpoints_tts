@@ -23,10 +23,7 @@ export class Commands {
     this._bot = bot
   }
 
-  /**
-   * @return {Bot}
-   */
-  private get bot () {
+  private get bot (): Bot {
     return this._bot
   }
 
@@ -62,7 +59,7 @@ export class Commands {
     //TODO: cooldown check (We put it back here so skip will always run just not always answer.
 
     if (response && !(await msgObj.channelObj.getIrcMuted())) {
-      await this.bot.irc.ircConnector.sayWithMsgObj(msgObj, `${Commands.responsePrefix} @${msgObj.username}, ${response}`)
+      await this.bot.irc.ircConnector.sayWithMsgObj(msgObj, `${Commands.responsePrefix} ${response}`, true)
     }
   }
 }

@@ -109,14 +109,24 @@ export class IrcConnector extends EventEmitter {
    * Send a message with the msgObj
    * @param msgObj
    * @param message
+   * @param reply
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
-  async sayWithMsgObj (msgObj: IMessageObject, message: string, useSameSendConnectionAsPrevious?: boolean): Promise<void> {
+  async sayWithMsgObj (msgObj: IMessageObject, message: string, reply = false, useSameSendConnectionAsPrevious?: boolean): Promise<void> {
+    let replyId: string | undefined
+    if (reply) {
+      if (msgObj.raw.tags["reply-parent-msg-id"]) {
+        replyId = msgObj.raw.tags["reply-parent-msg-id"]
+      } else {
+        replyId = msgObj.raw.tags.id
+      }
+    }
     await this.say(msgObj.roomId,
       msgObj.channelName,
       message,
       msgObj.channelObj.botStatus,
       await msgObj.channelObj.getMaxMessageLength(),
+      replyId,
       useSameSendConnectionAsPrevious
     )
   }
@@ -129,9 +139,10 @@ export class IrcConnector extends EventEmitter {
    * @param {string} message
    * @param {UserLevels} botStatus
    * @param {number} maxMessageLength
+   * @param {string} [replyParentMessage]
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
-  private async say (channelId: number, channelName: string, message: string, botStatus: UserLevels, maxMessageLength: number, useSameSendConnectionAsPrevious?: boolean): Promise<void> {
+  private async say (channelId: number, channelName: string, message: string, botStatus: UserLevels, maxMessageLength: number, replyParentMessage?: string, useSameSendConnectionAsPrevious?: boolean): Promise<void> {
     const data: IWsDataMain = {
       cmd: IrcWsCmds.SEND,
       data: <IWsDataSend>{
@@ -140,7 +151,8 @@ export class IrcConnector extends EventEmitter {
         message,
         botStatus: botStatus,
         useSameSendConnectionAsPrevious,
-        maxMessageLength: maxMessageLength
+        maxMessageLength: maxMessageLength,
+        replyParentMessage
       },
       version: this.version,
       applicationId: config.wsConfig.TwitchIrcConnectorOwnApplicationId
