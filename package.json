@@ -13,7 +13,7 @@
     "twitch bot"
   ],
   "scripts": {
-    "start": "tsc && node dist/app.js",
+    "start": "npx tsc && node dist/App.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
