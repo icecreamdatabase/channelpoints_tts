@@ -11,19 +11,19 @@ create table botData
 
 create table channels
 (
-    roomId                int                                   not null
+    roomId            int                                   not null
         primary key,
-    channelName           varchar(45)                           not null,
-    enabled               bit       default b'1'                not null,
-    isTwitchPartner       bit       default b'0'                not null,
-    maxMessageLength      int       default 450                 not null,
-    minCooldown           int       default 0                   not null,
-    timeoutCheckTime      int       default 2                   not null,
-    addDate               timestamp default current_timestamp() not null,
-    ircMuted              bit       default b'0'                not null,
-    isQueueMessages       bit       default b'1'                not null,
-    volume                int       default 100                 not null,
-    canModsChangeSettings bit       default b'1'                not null
+    channelName       varchar(45)                           not null,
+    enabled           bit       default b'1'                not null,
+    isTwitchPartner   bit       default b'0'                not null,
+    maxMessageLength  int       default 450                 not null,
+    minCooldown       int       default 0                   not null,
+    timeoutCheckTime  int       default 2                   not null,
+    addDate           timestamp default current_timestamp() not null,
+    ircMuted          bit       default b'0'                not null,
+    isQueueMessages   bit       default b'1'                not null,
+    volume            int       default 100                 not null,
+    allModsAreEditors bit       default b'1'                not null
 );
 
 create table channelUserBlacklist
@@ -48,9 +48,10 @@ create table voices
 (
     id        int auto_increment
         primary key,
-    voiceId   varchar(45) not null,
-    voiceName varchar(45) not null,
-    language  varchar(45) not null,
+    voiceId   varchar(45)            not null,
+    voiceName varchar(45)            not null,
+    language  varchar(45)            not null,
+    provider  enum ('aws', 'google') null,
     constraint voices_voiceId_uindex
         unique (voiceId)
 );

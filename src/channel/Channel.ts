@@ -19,7 +19,7 @@ export class Channel {
   private static readonly _defaultIrcMuted = false
   private static readonly _defaultIsQueueMessages = true
   private static readonly _defaultVolume = 100
-  private static readonly _defaultCanModsChangeSettings = true
+  private static readonly _defaultAllModsAreEditors = true
   private static readonly _defaultIsTwitchPartner = false
 
   private _botStatus: UserLevels = UserLevels.DEFAULT
@@ -96,8 +96,8 @@ export class Channel {
     return (await SqlChannels.get(this.roomId))?.volume || Channel._defaultVolume
   }
 
-  public async getCanModsChangeSettings (): Promise<boolean> {
-    return (await SqlChannels.get(this.roomId))?.canModsChangeSettings || Channel._defaultCanModsChangeSettings
+  public async getAllModsAreEditors (): Promise<boolean> {
+    return (await SqlChannels.get(this.roomId))?.allModsAreEditors || Channel._defaultAllModsAreEditors
   }
 
   public async getChatters (): Promise<string[]> {
