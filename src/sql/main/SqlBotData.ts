@@ -11,10 +11,8 @@ export interface IBotData {
   refresh_token?: string
   supinicApiUser?: number,
   supinicApiKey?: string,
-  //botOwners?: string,
-  //botAdmins?: string,
-  //botOwnersParsed?: number[],
-  //botAdminsParsed?: number[]
+  botOwnersParsed?: number[],
+  botAdminsParsed?: number[]
 }
 
 interface ISqlBotData {
