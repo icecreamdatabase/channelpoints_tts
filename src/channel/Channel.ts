@@ -4,11 +4,8 @@ import {SqlChannels} from "../sql/channel/SqlChannels"
 import {Bot} from "../Bot"
 import {ApiOther} from "../api/Api"
 import {UserLevels} from "../Enums"
-import {SqlChannelUserBlacklist} from "../sql/channel/SqlChannelUserBlacklist"
 
 export class Channel {
-  private static readonly UPDATE_BLACKLIST_INTERVAL = 120000 // 2 minutes
-
   private readonly _bot: Bot
   private readonly _roomId: number
   private _channelName: string
@@ -24,17 +21,12 @@ export class Channel {
 
   private _botStatus: UserLevels = UserLevels.DEFAULT
 
-  private _channelUserBlacklist: Set<number> = new Set<number>()
-
-
   public constructor (bot: Bot,
                       roomId: number,
                       channelName: string) {
     this._bot = bot
     this._roomId = roomId
     this._channelName = channelName
-
-    this.updateChannelUserBlacklist().then()
   }
 
   get botStatus (): UserLevels {
@@ -102,21 +94,6 @@ export class Channel {
 
   public async getChatters (): Promise<string[]> {
     return await ApiOther.getAllUsersInChannel(this.channelName)
-  }
-
-  public isUserIdInBlacklist (userId: number): boolean {
-    return this._channelUserBlacklist.has(userId)
-  }
-
-  public async addUserIdToBlacklist (userId: number): Promise<void> {
-    SqlChannelUserBlacklist.addUserId(this.roomId, userId)
-    await this.updateChannelUserBlacklist()
-  }
-
-  public async updateChannelUserBlacklist (): Promise<void> {
-    (await SqlChannelUserBlacklist.getUserIds(this.roomId)).forEach(item => this._channelUserBlacklist.add(item))
-
-    setTimeout(() => this.updateChannelUserBlacklist(), Channel.UPDATE_BLACKLIST_INTERVAL * (Math.random() + 1))
   }
 }
 

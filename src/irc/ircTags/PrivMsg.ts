@@ -57,10 +57,6 @@ export class PrivMsg {
         return true
       }
 
-      if (msgObj.channelObj.isUserIdInBlacklist(msgObj.userId)) {
-        return true
-      }
-
       if (msgObj.message.toLowerCase().startsWith("!tts gdpr optout ")) {
         await this.bot.addUserIdToBlacklist(msgObj.userId)
         Logger.info(`User added blacklist: ${msgObj.username} (${msgObj.userId}) - Channel: ${msgObj.channelName} (${msgObj.roomId})`)
@@ -131,11 +127,11 @@ export class PrivMsg {
    * Determines and sets userlevel inside of messageObj
    */
   private getUserLevel (messageObj: IMessageObject): UserLevels {
-    if (this.bot.authentication.botOwners.includes(messageObj.userId)) {
-      return UserLevels.BOTOWNER
-    } else if (this.bot.authentication.botAdmins.includes(messageObj.userId)) {
-      return UserLevels.BOTADMIN
-    }
+    //if (this.bot.authentication.botOwners.includes(messageObj.userId)) {
+    //  return UserLevels.BOTOWNER
+    //} else if (this.bot.authentication.botAdmins.includes(messageObj.userId)) {
+    //  return UserLevels.BOTADMIN
+    //}
 
     return UserLevelsHelper.getUserLevel(messageObj.raw.tags.badges)
   }

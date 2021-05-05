@@ -2,30 +2,30 @@
 import Sql from "../Sql"
 import {FieldPacket, RowDataPacket} from "mysql2"
 
-export interface ISqlRewardVoice {
-  id: number,
-  roomId: number,
-  rewardId: string,
-  voicesId: number,
-  isConversation: boolean,
-  isSubOnly: boolean,
-  cooldown: number
+export interface ISqlReward {
+  RewardId: string,
+  ChannelId: number,
+  VoiceId: string,
+  IsConversation: boolean,
+  IsSubOnly: boolean,
+  Cooldown: number
 }
 
 export class SqlRewardVoice {
-  public static async get (roomId: number, rewardId: string): Promise<ISqlRewardVoice | undefined> {
+  public static async get (roomId: number, rewardId: string): Promise<ISqlReward | undefined> {
     const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`
-        SELECT id,
-               roomId,
-               voicesId,
-               isConversation,
-               isSubOnly
-        FROM rewardVoice
+        SELECT RewardId,
+               ChannelId,
+               VoiceId,
+               IsConversation,
+               IsSubOnly,
+               Cooldown
+        FROM  Rewards
         WHERE rewardId = ?;`, [rewardId])
 
     if (rows.length > 0) {
-      const rewardVoice = <ISqlRewardVoice>rows[0]
-      if (rewardVoice.roomId === roomId) {
+      const rewardVoice = <ISqlReward>rows[0]
+      if (rewardVoice.ChannelId === roomId) {
         return rewardVoice
       }
     }

@@ -28,7 +28,7 @@ export class SqlChannels {
                isQueueMessages,
                volume,
                allModsAreEditors
-        FROM channels
+        FROM Channels
         WHERE enabled = b'1'
           AND roomId = ?;`, [roomId])
 
@@ -39,7 +39,7 @@ export class SqlChannels {
   }
 
   static async updateChannelName (roomId: number, newChannelName: string): Promise<void> {
-    await Sql.query(`UPDATE IGNORE channels
+    await Sql.query(`UPDATE IGNORE Channels
                      SET channelName = ?
                      WHERE roomId = ?;`, [newChannelName, roomId])
   }
@@ -47,7 +47,7 @@ export class SqlChannels {
   static async getBasicChannelData (): Promise<Map<number, string>> {
     const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`
         SELECT roomId, channelName
-        FROM channels
+        FROM Channels
         WHERE enabled = b'1';`)
 
     const channels: Map<number, string> = new Map<number, string>()
@@ -56,7 +56,7 @@ export class SqlChannels {
   }
 
   static async disableChannel (roomId: number | string): Promise<void> {
-    await Sql.query(`UPDATE IGNORE channels
+    await Sql.query(`UPDATE IGNORE Channels
                      SET enabled = b'0'
                      WHERE roomId = ?; `, [roomId])
   }

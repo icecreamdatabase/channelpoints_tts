@@ -11,27 +11,29 @@ export interface IBotData {
   refresh_token?: string
   supinicApiUser?: number,
   supinicApiKey?: string,
-  botOwners?: string,
-  botAdmins?: string,
-  botOwnersParsed?: number[],
-  botAdminsParsed?: number[]
+  //botOwners?: string,
+  //botAdmins?: string,
+  //botOwnersParsed?: number[],
+  //botAdminsParsed?: number[]
+}
+
+interface ISqlBotData {
+  [key: string]: string
 }
 
 export class SqlBotData {
   public static async getBotData (): Promise<IBotData> {
     const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`SELECT *
-                                                                                       FROM botData;`)
-    const botData: IBotData = {}
-    for (const row of rows) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      botData[row.key] = row.value
+                                                                                       FROM BotData;`)
+    const botData: ISqlBotData = {}
+    for (const row of (rows as ISqlBotData[])) {
+      botData[row.Key] = row.Value
     }
     return botData
   }
 
   public static async set (key: string, value: string): Promise<void> {
-    await Sql.query(` INSERT INTO botData (\`key\`, value)
+    await Sql.query(` INSERT INTO BotData (\`key\`, value)
                       VALUES (?, ?)
                       ON DUPLICATE KEY UPDATE value = VALUES(value); `, [key, value])
   }

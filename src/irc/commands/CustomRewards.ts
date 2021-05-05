@@ -4,16 +4,12 @@ import {IMessageObject} from "../ircTags/PrivMsg"
 import {SqlRewardVoice} from "../../sql/tts/SqlRewardVoice"
 import {Logger} from "../../helper/Logger"
 import {UserLevels} from "../../Enums"
-import {SqlTtsLog} from "../../sql/tts/SqlTtsLog"
 import {ClearMsg} from "../ircTags/ClearMsg"
 import {ClearChat} from "../ircTags/ClearChat"
 import {SqlTtsQueue} from "../../sql/tts/SqlTtsQueue"
 
 export class CustomRewards {
   private readonly _bot: Bot
-  // CustomRewardId is the key. This is unique globally so we don't have to worry about channel specific stuff.
-  private static readonly _lastUsage: Map<string, Date> = new Map<string, Date>()
-
 
   constructor (bot: Bot) {
     this._bot = bot
@@ -45,21 +41,7 @@ export class CustomRewards {
     }
 
     /* ————— Sub only ————— */
-    if (rewardVoice.isSubOnly && msgObj.userLevel < UserLevels.SUB) {
-      await SqlTtsLog.add(msgObj, rewardVoice.voicesId, "failedSubmode")
-      // TODO Deny subonly answer in chat
-      return true
-    }
-
-    /* ————— cooldown ————— */
-    const lastUsage = CustomRewards._lastUsage.get(msgObj.raw.tags["custom-reward-id"]) || new Date(0) // new Date(0) === UNIX EPOCH --> never used before
-    if (msgObj.timestamp.getTime() - lastUsage.getTime() < rewardVoice.cooldown * 1000) {
-
-      await SqlTtsLog.add(msgObj, rewardVoice.voicesId, "failedCooldown")
-      // TODO Deny cooldown answer in chat
-      return true
-    }
-    CustomRewards._lastUsage.set(msgObj.raw.tags["custom-reward-id"], msgObj.timestamp)
+    const isSubOrHigher = msgObj.userLevel >= UserLevels.SUB
 
     /* ————— timeout ————— */
     const timeoutCheckTime = await msgObj.channelObj.getTimeoutCheckTime()
@@ -68,16 +50,10 @@ export class CustomRewards {
     await new Promise(resolve => setTimeout(resolve, timeoutCheckTime * 1000))
 
     // check if deleted or timed out.
-    if (ClearMsg.wasDeleted(msgObj.raw.tags.id)
-      || ClearChat.wasTimedOut(msgObj.channelName, msgObj.username, timeoutCheckTime)) {
-      await SqlTtsLog.add(msgObj, rewardVoice.voicesId, "failedTimedOut")
-      // TODO Deny timeout answer in chat
-      return true
-    }
+    const wasTimedOut = ClearMsg.wasDeleted(msgObj.raw.tags.id) || ClearChat.wasTimedOut(msgObj.channelName, msgObj.username, timeoutCheckTime)
 
     /* ————— Add to queue ————— */
-    await SqlTtsQueue.add(msgObj, rewardVoice.id)
-    // TODO: Anything still needed here?
+    await SqlTtsQueue.add(msgObj, rewardVoice.RewardId, isSubOrHigher, wasTimedOut)
 
     return true
   }

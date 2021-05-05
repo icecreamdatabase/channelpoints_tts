@@ -10,7 +10,7 @@ export class SqlGlobalUserBlacklist {
   static async getUserIds (): Promise<number[]> {
     const [rows]: [RowDataPacket[], FieldPacket[]] = await Sql.query<RowDataPacket[]>(`
         SELECT userId
-        FROM globalUserBlacklist;`)
+        FROM GlobalUserBlacklist;`)
 
     return rows.map(x => x["userId"])
   }
@@ -20,7 +20,7 @@ export class SqlGlobalUserBlacklist {
    * @param userId
    */
   static addUserId (userId: number | string): void {
-    Sql.query(` INSERT IGNORE INTO globalUserBlacklist (userId)
+    Sql.query(` INSERT IGNORE INTO GlobalUserBlacklist (userId)
                 VALUES (?);`, [userId])
   }
 }
