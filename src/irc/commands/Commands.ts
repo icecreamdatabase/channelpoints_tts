@@ -1,6 +1,7 @@
 "use strict"
 import {Bot} from "../../Bot"
 import {IMessageObject} from "../ircTags/PrivMsg"
+import {UserLevels} from "../../Enums"
 
 // noinspection JSUnusedGlobalSymbols
 enum TtsCmds {
@@ -45,14 +46,20 @@ export class Commands {
       const cmdKey = <keyof typeof TtsCmds>msgParts[1]
       switch (cmdKey) {
         case "settings":
-          response = TtsCmds[cmdKey] + msgObj.channelName.substr(1)
+          //response = TtsCmds[cmdKey] + msgObj.channelName.substr(1)
           break
         case "skip":
-          //TODO: skip (api.icdb.dev call somehow)
-          response = TtsCmds[cmdKey]
+          if (msgObj.userLevel >= UserLevels.MODERATOR) {
+            if (await this.bot.apiIcdbDev.SkipTts(msgObj.roomId)) {
+              response = "Skipped the currently playing message."
+            } else {
+              response = "Something went wrong."
+            }
+            //response = TtsCmds[cmdKey]
+          }
           break
         default:
-          response = TtsCmds[cmdKey]
+        //response = TtsCmds[cmdKey]
       }
     }
 

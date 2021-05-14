@@ -10,7 +10,7 @@ export class Channel {
   private readonly _roomId: number
   private _channelName: string
 
-  private static readonly _defaultMaxMessageLength = 450
+  private static readonly _defaultMaxIrcMessageLength = 450
   private static readonly _defaultMinCooldown = 0
   private static readonly _defaultTimeoutCheckTime = 2
   private static readonly _defaultIrcMuted = false
@@ -64,8 +64,8 @@ export class Channel {
     return (await SqlChannels.get(this.roomId))?.isTwitchPartner || Channel._defaultIsTwitchPartner
   }
 
-  public async getMaxMessageLength (): Promise<number> {
-    return (await SqlChannels.get(this.roomId))?.maxMessageLength || Channel._defaultMaxMessageLength
+  public async getMaxIrcMessageLength (): Promise<number> {
+    return (await SqlChannels.get(this.roomId))?.maxIrcMessageLength || Channel._defaultMaxIrcMessageLength
   }
 
   public async getMinCooldown (): Promise<number> {

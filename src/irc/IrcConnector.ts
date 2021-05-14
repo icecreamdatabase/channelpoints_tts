@@ -125,7 +125,7 @@ export class IrcConnector extends EventEmitter {
       msgObj.channelName,
       message,
       msgObj.channelObj.botStatus,
-      await msgObj.channelObj.getMaxMessageLength(),
+      await msgObj.channelObj.getMaxIrcMessageLength(),
       replyId,
       useSameSendConnectionAsPrevious
     )
@@ -138,11 +138,11 @@ export class IrcConnector extends EventEmitter {
    * @param {string} channelName
    * @param {string} message
    * @param {UserLevels} botStatus
-   * @param {number} maxMessageLength
+   * @param {number} maxIrcMessageLength
    * @param {string} [replyParentMessage]
    * @param {boolean} [useSameSendConnectionAsPrevious] undefined = automatic detection based on message splitting.
    */
-  private async say (channelId: number, channelName: string, message: string, botStatus: UserLevels, maxMessageLength: number, replyParentMessage?: string, useSameSendConnectionAsPrevious?: boolean): Promise<void> {
+  private async say (channelId: number, channelName: string, message: string, botStatus: UserLevels, maxIrcMessageLength: number, replyParentMessage?: string, useSameSendConnectionAsPrevious?: boolean): Promise<void> {
     const data: IWsDataMain = {
       cmd: IrcWsCmds.SEND,
       data: <IWsDataSend>{
@@ -151,7 +151,7 @@ export class IrcConnector extends EventEmitter {
         message,
         botStatus: botStatus,
         useSameSendConnectionAsPrevious,
-        maxMessageLength: maxMessageLength,
+        maxMessageLength: maxIrcMessageLength,
         replyParentMessage
       },
       version: this.version,

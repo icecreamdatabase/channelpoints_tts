@@ -2,7 +2,7 @@
 
 import {EventEmitter} from "eventemitter3"
 
-import {ApiHelix, ApiKraken, ApiOther, Authentication} from "./api/Api"
+import {ApiHelix, ApiIcdbDev, ApiKraken, ApiOther, Authentication} from "./api/Api"
 import {UserIdLoginCache} from "./helper/UserIdLoginCache"
 import {SqlGlobalUserBlacklist} from "./sql/main/SqlGlobalUserBlacklist"
 
@@ -22,6 +22,7 @@ export class Bot extends EventEmitter {
   private readonly _apiHelix: ApiHelix
   private readonly _apiKraken: ApiKraken
   private readonly _apiOther: ApiOther
+  private readonly _apiIcdbDev: ApiIcdbDev
   private readonly _channels: Channels
   private readonly _irc: Irc
   private readonly _pubSub: PubSub
@@ -36,6 +37,7 @@ export class Bot extends EventEmitter {
     this._userIdLoginCache = new UserIdLoginCache(this)
     this._apiHelix = new ApiHelix(this)
     this._apiKraken = new ApiKraken(this)
+    this._apiIcdbDev = new ApiIcdbDev(this)
     this._apiOther = new ApiOther(this)
     this._channels = new Channels(this)
     this._irc = new Irc(this)
@@ -78,6 +80,10 @@ export class Bot extends EventEmitter {
 
   public get apiKraken (): ApiKraken {
     return this._apiKraken
+  }
+
+  public get apiIcdbDev (): ApiIcdbDev {
+    return this._apiIcdbDev
   }
 
   public get apiOther (): ApiOther { // Do we never need the instance? The instance only exists for the supinic api ping
