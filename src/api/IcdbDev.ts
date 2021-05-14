@@ -21,7 +21,7 @@ export class IcdbDev {
   public async SkipTts (roomId: number): Promise<boolean> {
     try {
       const result = await Axios({
-        url: `http://localhost:5000/redemption/skip`,
+        url: `https://api.icdb.dev/redemption/skip`,
         method: "POST",
         headers: {
           'Authorization': `OAuth ${this.bot.authentication.accessToken}`
