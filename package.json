@@ -23,7 +23,7 @@
     "eventemitter3": "^4.0.7",
     "mysql2": "^2.2.5",
     "util": "^0.12.3",
-    "ws": "^7.4.0"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "@types/mysql2": "github:types/mysql2",
