@@ -10,7 +10,9 @@ enum TtsCmds {
   "settings" = "The settings have moved over here PogChamp 👉 https://tts.icdb.dev/dashboard?c=",
   "voices" = "You can check out the available voices over here https://tts.icdb.dev/voices",
   "skip" = "Skipped the currently playing message.",
-  "stats" = "xD"
+  "stats" = "xD",
+  "ban" = "",
+  "timeout" = ""
 }
 
 export class Commands {
@@ -56,6 +58,57 @@ export class Commands {
               response = "Something went wrong."
             }
             //response = TtsCmds[cmdKey]
+          }
+          break
+        case "timeout":
+          if (msgObj.userLevel >= UserLevels.MODERATOR) {
+            if (msgParts[2] === undefined || msgParts[2] === "") {
+              response = "No user specified"
+            } else if (msgParts[3] === undefined || msgParts[3] === "") {
+              response = "No duration specified"
+            } else {
+              const userId = await this.bot.userIdLoginCache.nameToId(msgParts[2])
+              const length: number | undefined = parseInt(msgParts[3])
+              if (userId === undefined) {
+                response = "User not found"
+              } else if (length === undefined) {
+                response = "No duration specified"
+              } else if (length < 30) {
+                response = "Minimum allowed duration is 30 seconds"
+              } else {
+                let untilDate: Date | null = null
+                if (cmdKey === "timeout") {
+                  parseInt(msgParts[3])
+                  untilDate = new Date()
+                  untilDate.setSeconds(untilDate.getSeconds() + length)
+                }
+                if (await this.bot.apiIcdbDev.AddToChannelBlacklist(msgObj.roomId, userId, untilDate)) {
+                  response = "Added user to blacklist for " + msgParts[3] + " seconds."
+                } else {
+                  response = "Something went wrong."
+                }
+                //response = TtsCmds[cmdKey]
+              }
+            }
+          }
+          break
+        case "ban":
+          if (msgObj.userLevel >= UserLevels.MODERATOR) {
+            if (msgParts[2] === undefined || msgParts[2] === "") {
+              response = "No user specified"
+            } else {
+              const userId = await this.bot.userIdLoginCache.nameToId(msgParts[2])
+              if (userId === undefined) {
+                response = "User not found"
+              } else {
+                if (await this.bot.apiIcdbDev.AddToChannelBlacklist(msgObj.roomId, userId)) {
+                  response = "Added user to blacklist."
+                } else {
+                  response = "Something went wrong."
+                }
+                //response = TtsCmds[cmdKey]
+              }
+            }
           }
           break
         default:

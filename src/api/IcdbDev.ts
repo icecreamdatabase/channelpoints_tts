@@ -35,5 +35,27 @@ export class IcdbDev {
       return false
     }
   }
+
+  public async AddToChannelBlacklist (roomId: number, userId: number | string, untilDate: Date | null = null): Promise<boolean> {
+    try {
+      const result = await Axios({
+        url: `https://api.icdb.dev/channelblacklist`,
+        method: "POST",
+        headers: {
+          'Authorization': `OAuth ${this.bot.authentication.accessToken}`
+        },
+        params: {
+          roomId: roomId
+        },
+        data: {
+          userId: userId,
+          untilDate: untilDate
+        }
+      })
+      return result.status === 201
+    } catch (e) {
+      return false
+    }
+  }
 }
 
