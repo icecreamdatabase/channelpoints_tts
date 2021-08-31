@@ -75,7 +75,8 @@ export class PrivMsg {
 
       await this._commands.handle(msgObj)
 
-      await this._customRewards.handle(msgObj)
+      // TtsApi now uses EventSub!
+      //await this._customRewards.handle(msgObj)
 
     } catch (e) {
       Logger.debug(e)
