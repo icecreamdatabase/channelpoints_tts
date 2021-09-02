@@ -15,7 +15,7 @@ export class SqlTtsQueue {
                                                 RequesterDisplayName,
                                                 IsSubOrHigher,
                                                 RawMessage,
-                                                MessageId,
+                                                RedemptionId,
                                                 WasTimedOut,
                                                 RequestTimestamp)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
