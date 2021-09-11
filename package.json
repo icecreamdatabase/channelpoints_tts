@@ -19,7 +19,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "eventemitter3": "^4.0.7",
     "mysql2": "^2.2.5",
     "util": "^0.12.3",
