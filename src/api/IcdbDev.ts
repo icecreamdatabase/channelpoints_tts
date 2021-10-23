@@ -21,7 +21,7 @@ export class IcdbDev {
   public async SkipTts (roomId: number): Promise<boolean> {
     try {
       const result = await Axios({
-        url: `https://api.icdb.dev/redemption`,
+        url: `https://ttsapi.icdb.dev/redemption`,
         method: "DELETE",
         headers: {
           'Authorization': `OAuth ${this.bot.authentication.accessToken}`
@@ -39,7 +39,7 @@ export class IcdbDev {
   public async AddToChannelBlacklist (roomId: number, userId: number | string, untilDate: Date | null = null): Promise<boolean> {
     try {
       const result = await Axios({
-        url: `https://api.icdb.dev/channelblacklist`,
+        url: `https://ttsapi.icdb.dev/channelblacklist`,
         method: "POST",
         headers: {
           'Authorization': `OAuth ${this.bot.authentication.accessToken}`
